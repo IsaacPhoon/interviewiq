@@ -39,6 +39,8 @@ async def get_job_descriptions(
         select(JobDescription)
         .where(JobDescription.user_id == current_user.id)
         .order_by(col(JobDescription.created_at).desc())
+        .offset(offset)
+        .limit(limit)
     )
     result = await session.exec(stmt)
     job_descriptions = result.all()
