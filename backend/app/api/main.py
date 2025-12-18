@@ -8,5 +8,5 @@ api_router.include_router(job_descriptions.router)
 
 
 @api_router.get('/health', tags=['Health'])
-def check_health():
+async def check_health():
     return {'status': 'healthy'}

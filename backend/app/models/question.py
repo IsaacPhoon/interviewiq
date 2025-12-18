@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class Question(SQLModel, table=True):
-    """Database model for a interview question."""
+    """Database model for an interview question."""
 
     __tablename__: str = 'questions'
 

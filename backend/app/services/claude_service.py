@@ -21,6 +21,12 @@ Generate 5 behavioral interview questions that:
 """
 
 
+class ClaudeServiceError(Exception):
+    """Raised when there is an error interacting with the Claude API."""
+
+    pass
+
+
 class QuestionsList(BaseModel):
     """Schema for generated interview questions."""
 
@@ -31,16 +37,11 @@ class QuestionsList(BaseModel):
     )
 
 
-class ClaudeServiceError(Exception):
-    """Raised when there is an error interacting with the Claude API."""
-
-    pass
-
-
 class ClaudeService:
     """Service to interact with the Claude API."""
 
     def __init__(self):
+        """Initialize the ClaudeService with async API client and model settings."""
         self.client = AsyncAnthropic(
             api_key=settings.CLAUDE_API_KEY,
             http_client=DefaultAioHttpClient(),

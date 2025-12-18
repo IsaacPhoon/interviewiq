@@ -16,14 +16,17 @@ clerk_config = ClerkConfig(jwks_url=settings.CLERK_JWKS_URL)
 
 clerk_auth_guard = ClerkHTTPBearer(config=clerk_config, auto_error=False)
 
-CredentialsDep = Annotated[
-    HTTPAuthorizationCredentials | None, Depends(clerk_auth_guard)
-]
 
-
-async def get_current_user(credentials: CredentialsDep, session: SessionDep) -> User:
+async def get_current_user(
+    credentials: Annotated[
+        HTTPAuthorizationCredentials | None, Depends(clerk_auth_guard)
+    ],
+    session: SessionDep,
+) -> User:
     """
-    Validates Clerk JWT token and raises HTTPException with 401 status if authentication fails.
+    Validate Clerk JWT token and return the current user from the database.
+    Raise HTTPException with 401 if token is missing/invalid,
+    or 403 if user is not found.
     """
     if credentials is None:
         raise HTTPException(
