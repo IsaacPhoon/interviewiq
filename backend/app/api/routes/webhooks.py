@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.database import SessionDep
 from app.models.user import User
 
-router = APIRouter(prefix='/webhooks', tags=['webhooks'])
+router = APIRouter(prefix='/webhooks', tags=['Webhooks'])
 
 
 @router.post('/clerk', status_code=status.HTTP_204_NO_CONTENT)
