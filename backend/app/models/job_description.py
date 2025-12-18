@@ -52,6 +52,13 @@ class JobDescription(SQLModel, table=True):
 class JobDescriptionBase(BaseModel):
     """Base schema for job descriptions."""
 
+    company_name: str
+    job_title: str
+
+
+class JobDescriptionCreate(JobDescriptionBase):
+    """Schema for creating a job description."""
+
     company_name: str = Field(
         min_length=COMPANY_NAME_MIN_LENGTH, max_length=COMPANY_NAME_MAX_LENGTH
     )
@@ -61,15 +68,21 @@ class JobDescriptionBase(BaseModel):
     )
 
 
-class JobDescriptionCreate(JobDescriptionBase):
-    """Schema for creating a job description."""
-
-    pass
-
-
 class JobDescriptionResponse(JobDescriptionBase):
     """Schema for a job description response."""
 
     id: int
+    description_text: str
     status: StatusEnum
     created_at: datetime
+
+
+class JobDescriptionListResponse(BaseModel):
+    """Schema for an item in a list of job descriptions response."""
+
+    id: int
+    description_text: str
+    status: StatusEnum
+    created_at: datetime
+    total_questions: int
+    questions_with_responses: int
