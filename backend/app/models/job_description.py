@@ -26,7 +26,7 @@ class StatusEnum(str, Enum):
 
 
 class JobDescription(SQLModel, table=True):
-    """Database model for job descriptions."""
+    """Database model for a job description."""
 
     __tablename__: str = 'job_descriptions'
 
@@ -68,7 +68,7 @@ class JobDescriptionCreate(JobDescriptionBase):
 
 
 class JobDescriptionResponse(JobDescriptionBase):
-    """Schema for job description response."""
+    """Schema for a job description response."""
 
     id: int
     status: StatusEnum

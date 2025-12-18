@@ -8,6 +8,8 @@ if TYPE_CHECKING:
 
 
 class Question(SQLModel, table=True):
+    """Database model for a interview question."""
+
     __tablename__: str = 'questions'
 
     id: int | None = Field(default=None, primary_key=True)

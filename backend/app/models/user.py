@@ -8,6 +8,8 @@ if TYPE_CHECKING:
 
 
 class User(SQLModel, table=True):
+    """Database model for a user."""
+
     __tablename__: str = 'users'
 
     id: int | None = Field(default=None, primary_key=True)

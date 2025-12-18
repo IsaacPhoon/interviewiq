@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class Response(SQLModel, table=True):
+    """Database model for a response to an interview question."""
+
     __tablename__: str = 'responses'
 
     id: int | None = Field(default=None, primary_key=True)
