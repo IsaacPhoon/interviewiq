@@ -1,0 +1,14 @@
+{
+    "jobDescriptionConstants": {
+        "companyNameMinLength": 1,
+        "companyNameMaxLength": 200,
+        "titleMinLength": 1,
+        "titleMaxLength": 200,
+        "descriptionTextMinLength": 50,
+        "descriptionTextMaxLength": 10000
+    },
+    "responseConstants": {
+        "audioMaxSizeMegabytes": 30,
+        "audioMaxDurationMinutes": 30
+    }
+}
