@@ -17,7 +17,7 @@ async def clerk_webhook(request: Request, session: SessionDep):
     payload = await request.body()
 
     try:
-        wh = Webhook(settings.clerk_webhook_secret)
+        wh = Webhook(settings.CLERK_WEBHOOK_SECRET)
         content = wh.verify(payload, headers)
     except WebhookVerificationError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)

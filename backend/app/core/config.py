@@ -12,9 +12,9 @@ class Settings(BaseSettings):
         extra='ignore',
     )
 
-    database_url: str
-    clerk_jwks_url: str
-    clerk_webhook_secret: str
+    DATABASE_URL: str
+    CLERK_JWKS_URL: str
+    CLERK_WEBHOOK_SECRET: str
 
 
 settings = Settings()  # type: ignore[call-arg]

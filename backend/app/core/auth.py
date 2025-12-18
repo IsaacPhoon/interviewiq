@@ -12,7 +12,7 @@ from app.core.config import settings
 from app.core.database import SessionDep
 from app.models.user import User
 
-clerk_config = ClerkConfig(jwks_url=settings.clerk_jwks_url)
+clerk_config = ClerkConfig(jwks_url=settings.CLERK_JWKS_URL)
 
 clerk_auth_guard = ClerkHTTPBearer(config=clerk_config, auto_error=False)
 
