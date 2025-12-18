@@ -39,7 +39,8 @@ async def get_current_user(credentials: CredentialsDep, session: SessionDep) -> 
         )
 
     clerk_id = credentials.decoded['sub']
-    user = session.exec(select(User).where(User.clerk_id == clerk_id)).one_or_none()
+    result = await session.exec(select(User).where(User.clerk_id == clerk_id))
+    user = result.one_or_none()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

@@ -20,7 +20,10 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option('sqlalchemy.url', settings.DATABASE_URL)
+sync_database_url = settings.DATABASE_URL.replace(
+    'postgresql+asyncpg://', 'postgresql+psycopg://'
+)
+config.set_main_option('sqlalchemy.url', sync_database_url)
 
 # add your model's MetaData object here
 # for 'autogenerate' support

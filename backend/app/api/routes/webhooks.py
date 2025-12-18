@@ -27,7 +27,9 @@ async def clerk_webhook(request: Request, session: SessionDep):
     if event_type == 'user.created':
         user_data = content['data']
         clerk_id = user_data['id']
-        created_at = datetime.fromtimestamp(user_data['created_at'] / 1000, tz=timezone.utc)
+        created_at = datetime.fromtimestamp(
+            user_data['created_at'] / 1000, tz=timezone.utc
+        )
         updated_at = created_at
 
         user = User(
@@ -36,16 +38,17 @@ async def clerk_webhook(request: Request, session: SessionDep):
             updated_at=updated_at,
         )
         session.add(user)
-        session.commit()
+        await session.commit()
 
     elif event_type == 'user.deleted':
         user_data = content['data']
         clerk_id = user_data['id']
 
-        user = session.exec(select(User).where(User.clerk_id == clerk_id)).one_or_none()
+        result = await session.exec(select(User).where(User.clerk_id == clerk_id))
+        user = result.one_or_none()
         if user is not None:
-            session.delete(user)
-            session.commit()
+            await session.delete(user)
+            await session.commit()
 
     elif event_type == 'user.updated':
         pass

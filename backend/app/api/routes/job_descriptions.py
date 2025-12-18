@@ -27,11 +27,11 @@ async def create_job_description(
             job_description, update={'user_id': current_user.id}
         )
         session.add(db_job_description)
-        session.commit()
-        session.refresh(db_job_description)
+        await session.commit()
+        await session.refresh(db_job_description)
 
     except Exception as e:
-        session.rollback()
+        await session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Failed to create job description.',
@@ -53,15 +53,15 @@ async def create_job_description(
 
         db_job_description.status = StatusEnum.QUESTIONS_GENERATED
         session.add(db_job_description)
-        session.commit()
-        session.refresh(db_job_description)
+        await session.commit()
+        await session.refresh(db_job_description)
 
     except Exception as e:
-        session.rollback()
+        await session.rollback()
         db_job_description.status = StatusEnum.ERROR
         db_job_description.error_message = str(e)
         session.add(db_job_description)
-        session.commit()
-        session.refresh(db_job_description)
+        await session.commit()
+        await session.refresh(db_job_description)
 
     return db_job_description
