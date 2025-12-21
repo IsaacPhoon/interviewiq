@@ -46,10 +46,8 @@ async def regenerate_questions(
         session=session,
     )
 
-    updated_job_description = (
-        await job_description_service.create_entry_and_generate_questions(
-            job_description=job_description, session=session
-        )
+    updated_job_description = await job_description_service.regenerate_questions(
+        job_description=job_description, session=session
     )
 
     return updated_job_description

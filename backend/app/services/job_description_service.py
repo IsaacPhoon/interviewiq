@@ -62,6 +62,36 @@ class JobDescriptionService:
 
         return job_description
 
+    async def regenerate_questions(
+        self, job_description: JobDescription, session: AsyncSession
+    ) -> JobDescription:
+        """Regenerate interview questions for a job description."""
+        delete_stmt = select(Question).where(
+            Question.job_description_id == job_description.id
+        )
+        result = await session.exec(delete_stmt)
+        questions = result.all()
+        for question in questions:
+            await session.delete(question)
+        await session.commit()
+
+        try:
+            await self._generate_and_add_questions_to_db(
+                job_description=job_description, session=session
+            )
+            job_description.status = StatusEnum.QUESTIONS_GENERATED
+            job_description.error_message = None
+
+        except Exception as e:
+            job_description.status = StatusEnum.ERROR
+            job_description.error_message = str(e)
+
+        session.add(job_description)
+        await session.commit()
+        await session.refresh(job_description)
+
+        return job_description
+
     async def count_questions_with_responses(
         self, job_description_id: int, session: AsyncSession
     ) -> tuple[int, int]:
