@@ -88,7 +88,7 @@ class JobDescriptionResponse(BaseModel):
             session=session,
         )
         return cls(
-            **job_description.model_dump(),
+            **job_description.model_dump(exclude={'user', 'questions'}),
             questions_with_responses=questions_with_responses,
             total_questions=total_questions,
         )

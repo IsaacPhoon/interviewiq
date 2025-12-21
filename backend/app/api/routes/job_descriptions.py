@@ -29,7 +29,10 @@ async def create_job_description(
             job_description=db_job_description, session=session
         )
     )
-    return updated_job_description
+
+    return await JobDescriptionResponse.from_job_description(
+        job_description=updated_job_description, session=session
+    )
 
 
 @router.post(
@@ -50,7 +53,9 @@ async def regenerate_questions(
         job_description=job_description, session=session
     )
 
-    return updated_job_description
+    return await JobDescriptionResponse.from_job_description(
+        job_description=updated_job_description, session=session
+    )
 
 
 @router.get('/', response_model=list[JobDescriptionResponse])
@@ -107,3 +112,5 @@ async def delete_job_description(
 
     await session.delete(jd)
     await session.commit()
+
+    return None

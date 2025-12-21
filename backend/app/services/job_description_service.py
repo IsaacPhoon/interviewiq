@@ -74,6 +74,7 @@ class JobDescriptionService:
         for question in questions:
             await session.delete(question)
         await session.commit()
+        await session.refresh(job_description)
 
         try:
             await self._generate_and_add_questions_to_db(
