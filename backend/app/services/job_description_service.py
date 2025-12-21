@@ -1,3 +1,4 @@
+from fastapi import HTTPException, status
 from sqlmodel import distinct, func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -9,6 +10,33 @@ from app.services.claude_service import claude_service
 
 class JobDescriptionService:
     """Service for managing job descriptions."""
+
+    async def get_user_job_description(
+        self,
+        job_description_id: int,
+        user_id: int,
+        session: AsyncSession,
+    ) -> JobDescription:
+        """
+        Get a job description and verify the user owns it.
+        Raise HTTPException 404 if not found, 403 if user doesn't own it.
+        """
+        stmt = select(JobDescription).where(JobDescription.id == job_description_id)
+        result = await session.exec(stmt)
+        job_description = result.one_or_none()
+
+        if job_description is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Job description not found',
+            )
+        if job_description.user_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Not authorized to access this job description',
+            )
+
+        return job_description
 
     async def create_entry_and_generate_questions(
         self, job_description: JobDescription, session: AsyncSession

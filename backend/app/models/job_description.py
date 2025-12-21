@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.constants import job_description_constants
+from app.services.job_description_service import job_description_service
 
 if TYPE_CHECKING:
     from app.models import Question, User
@@ -49,14 +51,7 @@ class JobDescription(SQLModel, table=True):
     )
 
 
-class JobDescriptionBase(BaseModel):
-    """Base schema for job descriptions."""
-
-    company_name: str
-    job_title: str
-
-
-class JobDescriptionCreate(JobDescriptionBase):
+class JobDescriptionCreate(BaseModel):
     """Schema for creating a job description."""
 
     company_name: str = Field(
@@ -68,21 +63,31 @@ class JobDescriptionCreate(JobDescriptionBase):
     )
 
 
-class JobDescriptionResponse(JobDescriptionBase):
+class JobDescriptionResponse(BaseModel):
     """Schema for a job description response."""
 
     id: int
+    company_name: str
+    job_title: str
     description_text: str
     status: StatusEnum
     created_at: datetime
-
-
-class JobDescriptionListResponse(BaseModel):
-    """Schema for an item in a list of job descriptions response."""
-
-    id: int
-    description_text: str
-    status: StatusEnum
-    created_at: datetime
-    total_questions: int
     questions_with_responses: int
+    total_questions: int
+
+    @classmethod
+    async def from_job_description(
+        cls, job_description: JobDescription, session: AsyncSession
+    ) -> 'JobDescriptionResponse':
+        (
+            questions_with_responses,
+            total_questions,
+        ) = await job_description_service.count_questions_with_responses(
+            job_description_id=job_description.id,  # type: ignore[arg-type]
+            session=session,
+        )
+        return cls(
+            **job_description.model_dump(),
+            questions_with_responses=questions_with_responses,
+            total_questions=total_questions,
+        )
