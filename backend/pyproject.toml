@@ -18,6 +18,10 @@ dependencies = [
 ]
 
 
+[tool.ruff.format]
+quote-style = "single"
+
+
 [tool.alembic]
 
 # path to migration scripts.
@@ -35,6 +39,11 @@ file_template = "%%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(r
 # additional paths to be prepended to sys.path. defaults to the current working directory.
 prepend_sys_path = [
     "."
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.10",
 ]
 
 # timezone to use when rendering the date within the migration file

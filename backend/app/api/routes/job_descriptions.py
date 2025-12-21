@@ -21,6 +21,13 @@ async def create_job_description(
     current_user: CurrentUserDep,
     session: SessionDep,
 ):
+    """
+    Create a new job description and generate interview questions.
+
+    Creates a job description entry and asynchronously generates 5 behavioral
+    interview questions tailored to the role using Claude API. Returns the created
+    job description with status and question count.
+    """
     db_job_description = JobDescription.model_validate(
         job_description, update={'user_id': current_user.id}
     )
@@ -43,6 +50,15 @@ async def regenerate_questions(
     current_user: CurrentUserDep,
     session: SessionDep,
 ):
+    """
+    Regenerate interview questions for an existing job description.
+
+    Deletes existing questions and generates a new set of 5 behavioral
+    interview questions using Claude API. Useful when an error occurs
+    during initial generation.
+
+    Returns 404 if not found, 403 if not owned by user.
+    """
     job_description = await job_description_service.get_user_job_description(
         job_description_id=job_description_id,
         user_id=current_user.id,  # type: ignore[arg-type]
@@ -62,6 +78,12 @@ async def regenerate_questions(
 async def get_job_descriptions(
     current_user: CurrentUserDep, session: SessionDep, limit: int = 10, offset: int = 0
 ):
+    """
+    List all job descriptions for the authenticated user.
+
+    Returns a paginated list ordered by creation date (newest first).
+    Each entry includes total questions count and answered questions count.
+    """
     stmt = (
         select(JobDescription)
         .where(JobDescription.user_id == current_user.id)
@@ -87,6 +109,14 @@ async def get_job_description(
     current_user: CurrentUserDep,
     session: SessionDep,
 ):
+    """
+    Get a specific job description by ID.
+
+    Returns the full job description details including total questions count
+    and answered questions count.
+
+    Returns 404 if not found, 403 if not owned by user.
+    """
     jd = await job_description_service.get_user_job_description(
         job_description_id=job_description_id,
         user_id=current_user.id,  # type: ignore[arg-type]
@@ -104,6 +134,14 @@ async def delete_job_description(
     current_user: CurrentUserDep,
     session: SessionDep,
 ):
+    """
+    Delete a job description and all associated data.
+
+    Permanently deletes the job description along with all associated
+    questions and responses.
+
+    Returns 404 if not found, 403 if not owned by user.
+    """
     jd = await job_description_service.get_user_job_description(
         job_description_id=job_description_id,
         user_id=current_user.id,  # type: ignore[arg-type]

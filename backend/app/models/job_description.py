@@ -21,13 +21,20 @@ DESCRIPTION_TEXT_MAX_LENGTH = job_description_constants.DESCRIPTION_TEXT_MAX_LEN
 
 
 class StatusEnum(str, Enum):
+    """Enumeration of possible job description statuses."""
+
     PENDING = 'pending'
     QUESTIONS_GENERATED = 'questions_generated'
     ERROR = 'error'
 
 
 class JobDescription(SQLModel, table=True):
-    """Database model for a job description."""
+    """
+    Database model for a job description.
+
+    Represents a job posting that users submit for interview practice.
+    Includes tracking for question generation status and error handling.
+    """
 
     __tablename__: str = 'job_descriptions'
 
@@ -51,7 +58,12 @@ class JobDescription(SQLModel, table=True):
 
 
 class JobDescriptionCreate(BaseModel):
-    """Schema for creating a job description."""
+    """
+    Schema for creating a job description.
+
+    Request body for job description creation endpoint.
+    Field lengths are validated against shared constants.
+    """
 
     company_name: str = Field(
         min_length=COMPANY_NAME_MIN_LENGTH, max_length=COMPANY_NAME_MAX_LENGTH
@@ -63,7 +75,12 @@ class JobDescriptionCreate(BaseModel):
 
 
 class JobDescriptionResponse(BaseModel):
-    """Schema for a job description response."""
+    """
+    Response schema for job description endpoints.
+
+    Includes the full job description data plus calculated fields
+    for question progress tracking (questions_with_responses and total_questions).
+    """
 
     id: int
     company_name: str

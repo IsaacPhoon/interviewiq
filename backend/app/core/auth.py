@@ -24,9 +24,15 @@ async def get_current_user(
     session: SessionDep,
 ) -> User:
     """
-    Validate Clerk JWT token and return the current user from the database.
-    Raise HTTPException with 401 if token is missing/invalid,
-    or 403 if user is not found.
+    Validate Clerk JWT token and return the authenticated user.
+
+    Validates the Bearer token from the Authorization header, verifies
+    the JWT signature using Clerk's JWKS endpoint, and fetches the
+    corresponding user from the database.
+
+    Raises:
+        HTTPException: 401 if token is missing or invalid
+        HTTPException: 403 if token is valid but user not found in database
     """
     if credentials is None:
         raise HTTPException(

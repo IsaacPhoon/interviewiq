@@ -19,7 +19,13 @@ class JobDescriptionService:
     ) -> JobDescription:
         """
         Get a job description and verify the user owns it.
-        Raise HTTPException 404 if not found, 403 if user doesn't own it.
+
+        Performs ownership verification to ensure users can only access
+        their own job descriptions.
+
+        Raises:
+            HTTPException: 404 if job description not found
+            HTTPException: 403 if user doesn't own the job description
         """
         stmt = select(JobDescription).where(JobDescription.id == job_description_id)
         result = await session.exec(stmt)
@@ -41,7 +47,14 @@ class JobDescriptionService:
     async def create_entry_and_generate_questions(
         self, job_description: JobDescription, session: AsyncSession
     ) -> JobDescription:
-        """Create a job description entry and generate interview questions."""
+        """
+        Create a job description entry and generate interview questions.
+
+        Persists the job description to the database, then generates 5 behavioral
+        interview questions using Claude AI. Updates the status to QUESTIONS_GENERATED
+        on success or ERROR on failure. Exceptions are caught and stored in the
+        error_message field rather than propagated.
+        """
         session.add(job_description)
         await session.commit()
         await session.refresh(job_description)
@@ -65,7 +78,14 @@ class JobDescriptionService:
     async def regenerate_questions(
         self, job_description: JobDescription, session: AsyncSession
     ) -> JobDescription:
-        """Regenerate interview questions for a job description."""
+        """
+        Regenerate interview questions for a job description.
+
+        Deletes all existing questions for the job description and generates
+        a fresh set of 5 questions using Claude AI. Updates the status to
+        QUESTIONS_GENERATED on success or ERROR on failure. Clears any previous
+        error messages on successful regeneration.
+        """
         delete_stmt = select(Question).where(
             Question.job_description_id == job_description.id
         )
@@ -98,7 +118,8 @@ class JobDescriptionService:
     ) -> tuple[int, int]:
         """
         Count questions with at least one response for a job description.
-        Return a tuple of (questions_with_responses, total_questions).
+
+        Returns (questions_with_responses, total_questions) for progress tracking.
         """
         total_stmt = select(func.count(distinct(Question.id))).where(
             Question.job_description_id == job_description_id
@@ -119,7 +140,12 @@ class JobDescriptionService:
     async def _generate_and_add_questions_to_db(
         self, job_description: JobDescription, session: AsyncSession
     ) -> None:
-        """Generate interview questions with Claude and add them to the database."""
+        """
+        Generate interview questions with Claude and add them to the database.
+
+        Internal method that calls Claude API service to generate questions and
+        persists them to the database. Does not commit the session.
+        """
         questions_list = await claude_service.generate_question(
             job_description_text=job_description.description_text,
             company_name=job_description.company_name,

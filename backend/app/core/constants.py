@@ -16,6 +16,8 @@ constants_json_path = shared_dir / 'constants.json'
 with open(constants_json_path, 'r') as f:
     constants_data = json.load(f)
 
+# shared constants object
 constants = Constants.model_validate(constants_data)
+
 job_description_constants = constants.job_description_constants
 response_constants = constants.response_constants

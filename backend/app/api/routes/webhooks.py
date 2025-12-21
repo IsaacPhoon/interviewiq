@@ -52,7 +52,14 @@ EVENT_HANDLERS = {
 
 @router.post('/clerk', status_code=status.HTTP_204_NO_CONTENT)
 async def clerk_webhook(request: Request, session: SessionDep):
-    """Handle Clerk webhook events."""
+    """
+    Handle Clerk authentication webhook events.
+
+    Processes user lifecycle events from Clerk (user.created, user.deleted, user.updated).
+    Webhook signature is verified using Svix.
+
+    Returns 400 if verification fails.
+    """
     headers = dict(request.headers)
     payload = await request.body()
 

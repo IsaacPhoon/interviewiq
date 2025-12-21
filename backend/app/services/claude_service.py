@@ -38,7 +38,13 @@ class QuestionsList(BaseModel):
 
 
 class ClaudeService:
-    """Service to interact with the Claude API."""
+    """
+    Service to interact with the Claude API.
+
+    Handles all Claude API communication for generating behavioral interview
+    questions using structured outputs. Configured with API key and model
+    from application settings.
+    """
 
     def __init__(self):
         """Initialize the ClaudeService with async API client and model settings."""
@@ -51,7 +57,15 @@ class ClaudeService:
     async def generate_question(
         self, job_description_text: str, company_name: str, job_title: str
     ) -> list[str]:
-        """Generate 5 interview questions based on the job description using Claude API."""
+        """
+        Generate 5 behavioral interview questions using Claude API.
+
+        Uses Claude's structured output feature to generate STAR method-based
+        questions tailored to the specific role and company.
+
+        Raises:
+            ClaudeServiceError: If API call fails or returns invalid output
+        """
         try:
             response = await self.client.beta.messages.parse(
                 model=self.model,

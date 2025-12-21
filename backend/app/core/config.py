@@ -6,6 +6,8 @@ dotenv_path = Path(__file__).parent.parent.parent / '.env'
 
 
 class Settings(BaseSettings):
+    """Application configuration settings loaded from environment variables."""
+
     model_config = SettingsConfigDict(
         env_file=dotenv_path,
         env_ignore_empty=True,
