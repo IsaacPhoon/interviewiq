@@ -7,7 +7,6 @@ from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.constants import job_description_constants
-from app.services.job_description_service import job_description_service
 
 if TYPE_CHECKING:
     from app.models import Question, User
@@ -79,6 +78,8 @@ class JobDescriptionResponse(BaseModel):
     async def from_job_description(
         cls, job_description: JobDescription, session: AsyncSession
     ) -> 'JobDescriptionResponse':
+        from app.services.job_description_service import job_description_service
+
         (
             questions_with_responses,
             total_questions,
