@@ -21,3 +21,6 @@ build/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Linting / Formatting
+.ruff_cache/
