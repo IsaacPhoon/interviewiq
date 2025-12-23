@@ -12,6 +12,7 @@ dependencies = [
     "fastapi-clerk-auth>=0.0.9",
     "psycopg[binary]>=3.3.2",
     "pydantic-settings>=2.12.0",
+    "python-multipart>=0.0.21",
     "sqlmodel>=0.0.27",
     "svix>=1.83.0",
     "uvicorn>=0.38.0",
