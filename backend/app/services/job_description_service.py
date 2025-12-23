@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlmodel import distinct, func, select
+from sqlmodel import col, distinct, func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.models.job_description import JobDescription, StatusEnum
@@ -24,10 +24,11 @@ class JobDescriptionService:
         their own job descriptions.
 
         Raises:
-            HTTPException: 404 if job description not found
-            HTTPException: 403 if user doesn't own the job description
+            HTTPException: 404 if job description not found or user doesn't own it
         """
-        stmt = select(JobDescription).where(JobDescription.id == job_description_id)
+        stmt = select(JobDescription).where(
+            JobDescription.id == job_description_id, JobDescription.user_id == user_id
+        )
         result = await session.exec(stmt)
         job_description = result.one_or_none()
 
@@ -35,11 +36,6 @@ class JobDescriptionService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Job description not found',
-            )
-        if job_description.user_id != user_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail='Not authorized to access this job description',
             )
 
         return job_description
@@ -121,11 +117,11 @@ class JobDescriptionService:
 
         Returns (questions_with_responses, total_questions) for progress tracking.
         """
-        total_stmt = select(func.count(distinct(Question.id))).where(
+        total_stmt = select(func.count(col(Question.id))).where(
             Question.job_description_id == job_description_id
         )
         result = await session.exec(total_stmt)
-        total_questions_count = result.one()
+        total_question_count = result.one()
 
         with_responses_stmt = (
             select(func.count(distinct(Question.id)))
@@ -133,9 +129,9 @@ class JobDescriptionService:
             .where(Question.job_description_id == job_description_id)
         )
         result = await session.exec(with_responses_stmt)
-        questions_with_responses_count = result.one()
+        questions_with_response_count = result.one()
 
-        return (questions_with_responses_count, total_questions_count)
+        return (questions_with_response_count, total_question_count)
 
     async def _generate_and_add_questions_to_db(
         self, job_description: JobDescription, session: AsyncSession

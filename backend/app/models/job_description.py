@@ -104,6 +104,7 @@ class JobDescriptionResponse(BaseModel):
             job_description_id=job_description.id,  # type: ignore[arg-type]
             session=session,
         )
+
         return cls(
             **job_description.model_dump(exclude={'user', 'questions'}),
             questions_with_responses=questions_with_responses,

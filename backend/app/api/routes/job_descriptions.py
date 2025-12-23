@@ -60,7 +60,7 @@ async def regenerate_questions(
     interview questions using Claude API. Useful when an error occurs
     during initial generation.
 
-    Returns 404 if not found, 403 if not owned by user.
+    Returns 404 if not found or not owned by user.
     """
     job_description = await job_description_service.get_user_job_description(
         job_description_id=job_description_id,
@@ -127,7 +127,7 @@ async def get_job_description(
     Returns the full job description details including total questions count
     and answered questions count.
 
-    Returns 404 if not found, 403 if not owned by user.
+    Returns 404 if not found or not owned by user.
     """
     job_description = await job_description_service.get_user_job_description(
         job_description_id=job_description_id,
@@ -155,7 +155,7 @@ async def delete_job_description(
     Permanently deletes the job description along with all associated
     questions and responses.
 
-    Returns 404 if not found, 403 if not owned by user.
+    Returns 404 if not found or not owned by user.
     """
     job_description = await job_description_service.get_user_job_description(
         job_description_id=job_description_id,
