@@ -10,11 +10,13 @@ from app.models.job_description import (
 )
 from app.services.job_description_service import job_description_service
 
-router = APIRouter(prefix='/job-description', tags=['Job Descriptions'])
+router = APIRouter(prefix='/job-descriptions', tags=['Job Descriptions'])
 
 
 @router.post(
-    '/', status_code=status.HTTP_201_CREATED, response_model=JobDescriptionResponse
+    path='/',
+    status_code=status.HTTP_201_CREATED,
+    response_model=JobDescriptionResponse,
 )
 async def create_job_description(
     job_description: JobDescriptionCreate,
@@ -43,7 +45,8 @@ async def create_job_description(
 
 
 @router.post(
-    '/{job_description_id}/regenerate-questions', response_model=JobDescriptionResponse
+    path='/{job_description_id}/regenerate-questions',
+    response_model=JobDescriptionResponse,
 )
 async def regenerate_questions(
     job_description_id: int,
@@ -74,9 +77,15 @@ async def regenerate_questions(
     )
 
 
-@router.get('/', response_model=list[JobDescriptionResponse])
+@router.get(
+    path='/',
+    response_model=list[JobDescriptionResponse],
+)
 async def get_job_descriptions(
-    current_user: CurrentUserDep, session: SessionDep, limit: int = 10, offset: int = 0
+    current_user: CurrentUserDep,
+    session: SessionDep,
+    limit: int = 10,
+    offset: int = 0,
 ):
     """
     List all job descriptions for the authenticated user.
@@ -94,16 +103,19 @@ async def get_job_descriptions(
     job_descriptions = await session.exec(stmt)
 
     job_description_list = []
-    for jd in job_descriptions:
-        jd_item = await JobDescriptionResponse.from_job_description(
-            job_description=jd, session=session
+    for job_description in job_descriptions:
+        job_description_item = await JobDescriptionResponse.from_job_description(
+            job_description=job_description, session=session
         )
-        job_description_list.append(jd_item)
+        job_description_list.append(job_description_item)
 
     return job_description_list
 
 
-@router.get('/{job_description_id}', response_model=JobDescriptionResponse)
+@router.get(
+    path='/{job_description_id}',
+    response_model=JobDescriptionResponse,
+)
 async def get_job_description(
     job_description_id: int,
     current_user: CurrentUserDep,
@@ -117,18 +129,21 @@ async def get_job_description(
 
     Returns 404 if not found, 403 if not owned by user.
     """
-    jd = await job_description_service.get_user_job_description(
+    job_description = await job_description_service.get_user_job_description(
         job_description_id=job_description_id,
         user_id=current_user.id,  # type: ignore[arg-type]
         session=session,
     )
 
     return await JobDescriptionResponse.from_job_description(
-        job_description=jd, session=session
+        job_description=job_description, session=session
     )
 
 
-@router.delete('/{job_description_id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    path='/{job_description_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 async def delete_job_description(
     job_description_id: int,
     current_user: CurrentUserDep,
@@ -142,13 +157,13 @@ async def delete_job_description(
 
     Returns 404 if not found, 403 if not owned by user.
     """
-    jd = await job_description_service.get_user_job_description(
+    job_description = await job_description_service.get_user_job_description(
         job_description_id=job_description_id,
         user_id=current_user.id,  # type: ignore[arg-type]
         session=session,
     )
 
-    await session.delete(jd)
+    await session.delete(job_description)
     await session.commit()
 
     return None
