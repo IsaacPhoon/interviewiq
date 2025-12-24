@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, Request, status
 from sqlmodel import select
@@ -15,7 +15,7 @@ router = APIRouter(prefix='/webhooks', tags=['Webhooks'])
 async def handle_user_created(session: AsyncSession, user_data: dict):
     """Handle user.created webhook event."""
     clerk_id = user_data['id']
-    created_at = datetime.fromtimestamp(user_data['created_at'] / 1000, tz=timezone.utc)
+    created_at = datetime.fromtimestamp(user_data['created_at'] / 1000, tz=UTC)
     updated_at = created_at
 
     user = User(
@@ -55,7 +55,8 @@ async def clerk_webhook(request: Request, session: SessionDep):
     """
     Handle Clerk authentication webhook events.
 
-    Processes user lifecycle events from Clerk (user.created, user.deleted, user.updated).
+    Processes user lifecycle events from Clerk:
+    (user.created, user.deleted, user.updated).
     Webhook signature is verified using Svix.
 
     Returns 400 if verification fails.
@@ -67,7 +68,7 @@ async def clerk_webhook(request: Request, session: SessionDep):
         wh = Webhook(settings.CLERK_WEBHOOK_SECRET)
         content = wh.verify(payload, headers)
     except WebhookVerificationError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST) from None
 
     event_type = content['type']
     handler = EVENT_HANDLERS.get(event_type)

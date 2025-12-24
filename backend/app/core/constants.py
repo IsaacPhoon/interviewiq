@@ -13,7 +13,7 @@ finally:
 shared_dir = root_dir / 'shared'
 constants_json_path = shared_dir / 'constants.json'
 
-with open(constants_json_path, 'r') as f:
+with open(constants_json_path) as f:
     constants_data = json.load(f)
 
 # shared constants object
