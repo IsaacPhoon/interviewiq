@@ -7,6 +7,7 @@ from svix.webhooks import Webhook, WebhookVerificationError
 
 from app.core.config import settings
 from app.core.database import SessionDep
+from app.core.security import SvixWebhookIPDep
 from app.models.user import User
 
 router = APIRouter(prefix='/webhooks', tags=['Webhooks'])
@@ -50,7 +51,11 @@ EVENT_HANDLERS = {
 }
 
 
-@router.post('/clerk', status_code=status.HTTP_204_NO_CONTENT)
+@router.post(
+    path='/clerk',
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[SvixWebhookIPDep],
+)
 async def clerk_webhook(request: Request, session: SessionDep):
     """
     Handle Clerk authentication webhook events.
@@ -59,7 +64,7 @@ async def clerk_webhook(request: Request, session: SessionDep):
     (user.created, user.deleted, user.updated).
     Webhook signature is verified using Svix.
 
-    Returns 400 if verification fails.
+    Returns 400 if verification fails and 403 if request IP is not allowed.
     """
     headers = dict(request.headers)
     payload = await request.body()
