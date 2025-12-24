@@ -15,10 +15,17 @@ class Settings(BaseSettings):
     )
 
     DATABASE_URL: str
+
     CLERK_JWKS_URL: str
     CLERK_WEBHOOK_SECRET: str
+
     CLAUDE_API_KEY: str
     CLAUDE_MODEL: str
+
+    R2_ENDPOINT_URL: str
+    R2_ACCESS_KEY_ID: str
+    R2_SECRET_ACCESS_KEY: str
+    R2_BUCKET_NAME: str
 
 
 settings = Settings()  # type: ignore[call-arg]
