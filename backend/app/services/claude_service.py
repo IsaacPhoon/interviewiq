@@ -1,10 +1,17 @@
-from anthropic import AsyncAnthropic, DefaultAioHttpClient
-from pydantic import BaseModel, Field
+from anthropic import (
+    APIConnectionError,
+    APIStatusError,
+    AsyncAnthropic,
+    DefaultAioHttpClient,
+)
+from pydantic import BaseModel, Field, ValidationError
 
 from app.core.config import settings
 
 QUESTION_GENERATION_PROMPT = """
-You are an expert interview coach. Based on the following job description, generate exactly 5 behavioral interview questions that are tailored to this specific role.
+You are an expert interview coach. Based on the following job description, \
+generate exactly 5 behavioral interview questions that are tailored to this \
+specific role.
 
 Company: {company_name}
 Job Title: {job_title}
@@ -62,6 +69,7 @@ class ClaudeService:
 
         Uses Claude's structured output feature to generate STAR method-based
         questions tailored to the specific role and company.
+        Returns a list of exactly 5 questions.
 
         Raises:
             ClaudeServiceError: If API call fails or returns invalid output
@@ -83,14 +91,30 @@ class ClaudeService:
                 ],
                 output_format=QuestionsList,
             )
-            questions_list = response.parsed_output
-            if questions_list is None:
-                raise ClaudeServiceError(
-                    'Error generating questions with Claude API: Empty/invalid output received.'
-                )
+        except APIConnectionError as e:
+            raise ClaudeServiceError(
+                f'Failed to connect to Claude API: {str(e)}'
+            ) from e
+        except APIStatusError as e:
+            raise ClaudeServiceError(
+                f'Claude API request failed: {str(e)}. Status code: {e.status_code}'
+            ) from e
+        except ValidationError as e:
+            raise ClaudeServiceError(
+                f'Failed to validate Claude API response: {str(e)}'
+            ) from e
         except Exception as e:
             raise ClaudeServiceError(
-                f'Error generating questions with Claude API: {str(e)}'
+                f'Unexpected error during question generation. '
+                f'{type(e).__name__}: {str(e)}'
+            ) from e
+
+        questions_list = response.parsed_output
+
+        if questions_list is None:
+            raise ClaudeServiceError(
+                'Claude API returned empty response. '
+                'The model may have failed to generate structured output.'
             )
 
         return questions_list.questions
