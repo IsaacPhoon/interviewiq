@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
@@ -22,16 +22,16 @@ class Question(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     question_text: str
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
 
     job_description_id: int = Field(
         foreign_key='job_descriptions.id', ondelete='CASCADE'
     )
-    job_description: 'JobDescription' = Relationship(back_populates='questions')
+    job_description: JobDescription = Relationship(back_populates='questions')
 
-    responses: list['Response'] = Relationship(
+    responses: list[Response] = Relationship(
         back_populates='question', cascade_delete=True
     )
 
@@ -51,7 +51,7 @@ class QuestionResponse(BaseModel):
     @classmethod
     async def from_question(
         cls, question: Question, session: AsyncSession
-    ) -> 'QuestionResponse':
+    ) -> QuestionResponse:
         from app.services.question_service import question_service
 
         attempt_count = await question_service.count_responses(

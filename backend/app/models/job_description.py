@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING
 
@@ -45,14 +45,14 @@ class JobDescription(SQLModel, table=True):
     status: StatusEnum = StatusEnum.PENDING
     error_message: str | None = None
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
 
     user_id: int = Field(foreign_key='users.id', ondelete='CASCADE')
-    user: 'User' = Relationship(back_populates='job_descriptions')
+    user: User = Relationship(back_populates='job_descriptions')
 
-    questions: list['Question'] = Relationship(
+    questions: list[Question] = Relationship(
         back_populates='job_description', cascade_delete=True
     )
 
@@ -94,7 +94,7 @@ class JobDescriptionResponse(BaseModel):
     @classmethod
     async def from_job_description(
         cls, job_description: JobDescription, session: AsyncSession
-    ) -> 'JobDescriptionResponse':
+    ) -> JobDescriptionResponse:
         from app.services.job_description_service import job_description_service
 
         (
