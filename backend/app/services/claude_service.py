@@ -1,9 +1,4 @@
-from anthropic import (
-    APIConnectionError,
-    APIStatusError,
-    AsyncAnthropic,
-    DefaultAioHttpClient,
-)
+from anthropic import APIConnectionError, APIStatusError, AsyncAnthropic
 from pydantic import BaseModel, Field, ValidationError
 
 from app.core.config import settings
@@ -55,10 +50,7 @@ class ClaudeService:
 
     def __init__(self):
         """Initialize the ClaudeService with async API client and model settings."""
-        self.client = AsyncAnthropic(
-            api_key=settings.CLAUDE_API_KEY,
-            http_client=DefaultAioHttpClient(),
-        )
+        self.client = AsyncAnthropic(api_key=settings.CLAUDE_API_KEY)
         self.model = settings.CLAUDE_MODEL
 
     async def generate_question(
