@@ -1,5 +1,13 @@
 from anthropic import APIConnectionError, APIStatusError, AsyncAnthropic
 from pydantic import BaseModel, Field, ValidationError
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    stop_after_delay,
+    stop_any,
+    wait_exponential_jitter,
+)
 
 from app.core.config import settings
 
@@ -111,6 +119,12 @@ class ClaudeService:
         self.client = AsyncAnthropic(api_key=settings.CLAUDE_API_KEY)
         self.model = settings.CLAUDE_MODEL
 
+    @retry(
+        stop=stop_any(stop_after_attempt(3), stop_after_delay(20)),
+        wait=wait_exponential_jitter(initial=1, max=10, jitter=1),
+        retry=retry_if_exception_type(ClaudeServiceError),
+        reraise=True,
+    )
     async def generate_question(self, job_description_text: str, company_name: str, job_title: str) -> list[str]:
         """
         Generate 5 behavioral interview questions using Claude API.
@@ -159,6 +173,12 @@ class ClaudeService:
 
         return questions_list.questions
 
+    @retry(
+        stop=stop_any(stop_after_attempt(3), stop_after_delay(20)),
+        wait=wait_exponential_jitter(initial=1, max=10, jitter=1),
+        retry=retry_if_exception_type(ClaudeServiceError),
+        reraise=True,
+    )
     async def evaluate_response(
         self, job_description_text: str, company_name: str, job_title: str, question_text: str, transcript: str
     ) -> Evaluation:
