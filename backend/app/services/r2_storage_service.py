@@ -4,6 +4,14 @@ from typing import BinaryIO
 
 import boto3
 from botocore.exceptions import ClientError
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    stop_after_delay,
+    stop_any,
+    wait_exponential_jitter,
+)
 
 from app.core.config import settings
 
@@ -26,6 +34,12 @@ class R2StorageService:
             region_name='auto',
         )
 
+    @retry(
+        stop=stop_any(stop_after_attempt(5), stop_after_delay(15)),
+        wait=wait_exponential_jitter(initial=1, max=10, jitter=1),
+        retry=retry_if_exception_type(R2ServiceError),
+        reraise=True,
+    )
     async def upload_audio(self, audio_file: BinaryIO) -> str:
         """
         Upload an audio file to R2 storage and return its path.
@@ -49,6 +63,13 @@ class R2StorageService:
         except ClientError as e:
             raise R2ServiceError(f'Failed to upload audio to R2 storage: {e}') from e
 
+
+    @retry(
+        stop=stop_any(stop_after_attempt(3), stop_after_delay(10)),
+        wait=wait_exponential_jitter(initial=1, max=10, jitter=1),
+        retry=retry_if_exception_type(R2ServiceError),
+        reraise=True,
+    )
     async def get_audio_url(self, audio_path: str) -> str:
         """
         Generate a presigned URL for accessing an audio file in R2 storage.

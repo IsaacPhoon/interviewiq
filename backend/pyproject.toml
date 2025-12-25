@@ -16,6 +16,7 @@ dependencies = [
     "python-multipart>=0.0.21",
     "sqlmodel>=0.0.27",
     "svix>=1.83.0",
+    "tenacity>=9.1.2",
     "uvicorn>=0.38.0",
 ]
 
