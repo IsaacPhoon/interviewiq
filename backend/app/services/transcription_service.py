@@ -2,6 +2,14 @@ from typing import Literal
 
 import httpx
 from pydantic import BaseModel, Field, HttpUrl, ValidationError, field_validator
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    stop_after_delay,
+    stop_any,
+    wait_exponential_jitter,
+)
 
 from app.core.config import settings
 
@@ -62,6 +70,13 @@ class TranscriptionService:
             },
         )
 
+
+    @retry(
+        stop=stop_any(stop_after_attempt(3), stop_after_delay(120)),
+        wait=wait_exponential_jitter(initial=2, max=10, jitter=1),
+        retry=retry_if_exception_type(TranscriptionServiceError),
+        reraise=True,
+    )
     async def transcribe_audio(self, audio_url: str) -> str:
         """
         Transcribe audio from the given public audio URL using Azure Speech-to-Text API.
