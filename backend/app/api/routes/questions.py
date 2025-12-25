@@ -32,9 +32,7 @@ async def get_questions(
 
     question_list = []
     for question in questions:
-        question_item = await QuestionResponse.from_question(
-            question=question, session=session
-        )
+        question_item = await QuestionResponse.from_question(question=question, session=session)
         question_list.append(question_item)
 
     return question_list

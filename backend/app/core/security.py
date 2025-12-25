@@ -65,9 +65,7 @@ async def verify_svix_webhook_ip(request: Request) -> None:
     client_ip = request.client.host if request.client else None
 
     if not client_ip or not _is_svix_webhook_ip(client_ip):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail='Request not from allowed IP'
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Request not from allowed IP')
 
 
 SvixWebhookIPDep = Depends(verify_svix_webhook_ip)

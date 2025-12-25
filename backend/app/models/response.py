@@ -11,13 +11,9 @@ if TYPE_CHECKING:
 
 class Scores(BaseModel):
     confidence: int = Field(ge=1, le=10, description='Confidence score 1-10')
-    clarity_structure: int = Field(
-        ge=1, le=10, description='Clarity/Structure score 1-10'
-    )
+    clarity_structure: int = Field(ge=1, le=10, description='Clarity/Structure score 1-10')
     technical_depth: int = Field(ge=1, le=10, description='Technical depth score 1-10')
-    communication_skills: int = Field(
-        ge=1, le=10, description='Communication skills score 1-10'
-    )
+    communication_skills: int = Field(ge=1, le=10, description='Communication skills score 1-10')
     relevance: int = Field(ge=1, le=10, description='Relevance score 1-10')
 
 
@@ -47,9 +43,7 @@ class Response(SQLModel, table=True):
         default_factory=lambda: datetime.now(UTC),
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
-    evaluation: Evaluation = Field(
-        sa_column=Column(JSONB, nullable=False), default_factory=dict
-    )
+    evaluation: Evaluation = Field(sa_column=Column(JSONB, nullable=False), default_factory=dict)
 
     question_id: int = Field(foreign_key='questions.id', ondelete='CASCADE')
     question: Question = Relationship(back_populates='responses')

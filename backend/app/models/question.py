@@ -26,14 +26,10 @@ class Question(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
 
-    job_description_id: int = Field(
-        foreign_key='job_descriptions.id', ondelete='CASCADE'
-    )
+    job_description_id: int = Field(foreign_key='job_descriptions.id', ondelete='CASCADE')
     job_description: JobDescription = Relationship(back_populates='questions')
 
-    responses: list[Response] = Relationship(
-        back_populates='question', cascade_delete=True
-    )
+    responses: list[Response] = Relationship(back_populates='question', cascade_delete=True)
 
 
 class QuestionResponse(BaseModel):
@@ -49,9 +45,7 @@ class QuestionResponse(BaseModel):
     attempt_count: int
 
     @classmethod
-    async def from_question(
-        cls, question: Question, session: AsyncSession
-    ) -> QuestionResponse:
+    async def from_question(cls, question: Question, session: AsyncSession) -> QuestionResponse:
         from app.services.question_service import question_service
 
         attempt_count = await question_service.count_responses(

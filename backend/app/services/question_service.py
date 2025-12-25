@@ -26,9 +26,7 @@ class QuestionService:
             HTTPException: 404 if question not found or user doesn't own it
         """
         stmt = (
-            select(Question)
-            .join(JobDescription)
-            .where(Question.id == question_id, JobDescription.user_id == user_id)
+            select(Question).join(JobDescription).where(Question.id == question_id, JobDescription.user_id == user_id)
         )
         result = await session.exec(stmt)
         question = result.one_or_none()
@@ -63,9 +61,7 @@ class QuestionService:
                 detail='Job description not found',
             )
 
-        questions_stmt = select(Question).where(
-            Question.job_description_id == job_description_id
-        )
+        questions_stmt = select(Question).where(Question.job_description_id == job_description_id)
         questions_result = await session.exec(questions_stmt)
         return list(questions_result.all())
 
@@ -75,9 +71,7 @@ class QuestionService:
 
         Returns the number of responses associated with the given question ID.
         """
-        count_stmt = select(func.count(col(Response.id))).where(
-            Response.question_id == question_id
-        )
+        count_stmt = select(func.count(col(Response.id))).where(Response.question_id == question_id)
         result = await session.exec(count_stmt)
         response_count = result.one()
 

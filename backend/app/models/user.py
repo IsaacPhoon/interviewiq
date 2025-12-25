@@ -27,6 +27,4 @@ class User(SQLModel, table=True):
         ),
     )
 
-    job_descriptions: list[JobDescription] = Relationship(
-        back_populates='user', cascade_delete=True
-    )
+    job_descriptions: list[JobDescription] = Relationship(back_populates='user', cascade_delete=True)

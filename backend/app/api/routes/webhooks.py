@@ -56,7 +56,10 @@ EVENT_HANDLERS = {
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[SvixWebhookIPDep],
 )
-async def clerk_webhook(request: Request, session: SessionDep):
+async def clerk_webhook(
+    request: Request,
+    session: SessionDep,
+):
     """
     Handle Clerk authentication webhook events.
 

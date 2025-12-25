@@ -92,17 +92,12 @@ class TranscriptionService:
             return transcript
         except httpx.HTTPStatusError as e:
             raise TranscriptionServiceError(
-                f'Azure Speech API request failed: {str(e)}. '
-                f'Status code: {e.response.status_code}'
+                f'Azure Speech API request failed: {str(e)}. Status code: {e.response.status_code}'
             ) from e
         except httpx.RequestError as e:
-            raise TranscriptionServiceError(
-                f'Failed to connect to Azure Speech API: {str(e)}'
-            ) from e
+            raise TranscriptionServiceError(f'Failed to connect to Azure Speech API: {str(e)}') from e
         except ValidationError as e:
-            raise TranscriptionServiceError(
-                f'Failed to validate Azure Speech API response: {str(e)}'
-            ) from e
+            raise TranscriptionServiceError(f'Failed to validate Azure Speech API response: {str(e)}') from e
         except Exception as e:
             raise TranscriptionServiceError(
                 f'Unexpected error during transcription. {type(e).__name__}: {str(e)}'

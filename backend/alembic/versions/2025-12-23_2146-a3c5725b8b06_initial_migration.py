@@ -36,9 +36,7 @@ def upgrade() -> None:
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('company_name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column('job_title', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column(
-            'description_text', sqlmodel.sql.sqltypes.AutoString(), nullable=False
-        ),
+        sa.Column('description_text', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column(
             'status',
             sa.Enum('PENDING', 'QUESTIONS_GENERATED', 'ERROR', name='statusenum'),
@@ -75,9 +73,7 @@ def upgrade() -> None:
         sa.Column('audio_path', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column('transcript', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-        sa.Column(
-            'evaluation', postgresql.JSONB(astext_type=sa.Text()), nullable=False
-        ),
+        sa.Column('evaluation', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
         sa.Column('question_id', sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ['question_id'],

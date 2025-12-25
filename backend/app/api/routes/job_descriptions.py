@@ -30,18 +30,12 @@ async def create_job_description(
     interview questions tailored to the role using Claude API. Returns the created
     job description with status and question count.
     """
-    db_job_description = JobDescription.model_validate(
-        job_description, update={'user_id': current_user.id}
-    )
-    updated_job_description = (
-        await job_description_service.create_entry_and_generate_questions(
-            job_description=db_job_description, session=session
-        )
+    db_job_description = JobDescription.model_validate(job_description, update={'user_id': current_user.id})
+    updated_job_description = await job_description_service.create_entry_and_generate_questions(
+        job_description=db_job_description, session=session
     )
 
-    return await JobDescriptionResponse.from_job_description(
-        job_description=updated_job_description, session=session
-    )
+    return await JobDescriptionResponse.from_job_description(job_description=updated_job_description, session=session)
 
 
 @router.post(
@@ -72,9 +66,7 @@ async def regenerate_questions(
         job_description=job_description, session=session
     )
 
-    return await JobDescriptionResponse.from_job_description(
-        job_description=updated_job_description, session=session
-    )
+    return await JobDescriptionResponse.from_job_description(job_description=updated_job_description, session=session)
 
 
 @router.get(
@@ -135,9 +127,7 @@ async def get_job_description(
         session=session,
     )
 
-    return await JobDescriptionResponse.from_job_description(
-        job_description=job_description, session=session
-    )
+    return await JobDescriptionResponse.from_job_description(job_description=job_description, session=session)
 
 
 @router.delete(

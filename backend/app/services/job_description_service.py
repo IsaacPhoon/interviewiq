@@ -26,9 +26,7 @@ class JobDescriptionService:
         Raises:
             HTTPException: 404 if job description not found or user doesn't own it
         """
-        stmt = select(JobDescription).where(
-            JobDescription.id == job_description_id, JobDescription.user_id == user_id
-        )
+        stmt = select(JobDescription).where(JobDescription.id == job_description_id, JobDescription.user_id == user_id)
         result = await session.exec(stmt)
         job_description = result.one_or_none()
 
@@ -56,9 +54,7 @@ class JobDescriptionService:
         await session.refresh(job_description)
 
         try:
-            await self._generate_and_add_questions_to_db(
-                job_description=job_description, session=session
-            )
+            await self._generate_and_add_questions_to_db(job_description=job_description, session=session)
             job_description.status = StatusEnum.QUESTIONS_GENERATED
 
         except Exception as e:
@@ -71,9 +67,7 @@ class JobDescriptionService:
 
         return job_description
 
-    async def regenerate_questions(
-        self, job_description: JobDescription, session: AsyncSession
-    ) -> JobDescription:
+    async def regenerate_questions(self, job_description: JobDescription, session: AsyncSession) -> JobDescription:
         """
         Regenerate interview questions for a job description.
 
@@ -82,9 +76,7 @@ class JobDescriptionService:
         QUESTIONS_GENERATED on success or ERROR on failure. Clears any previous
         error messages on successful regeneration.
         """
-        delete_stmt = select(Question).where(
-            Question.job_description_id == job_description.id
-        )
+        delete_stmt = select(Question).where(Question.job_description_id == job_description.id)
         result = await session.exec(delete_stmt)
         questions = result.all()
         for question in questions:
@@ -93,9 +85,7 @@ class JobDescriptionService:
         await session.refresh(job_description)
 
         try:
-            await self._generate_and_add_questions_to_db(
-                job_description=job_description, session=session
-            )
+            await self._generate_and_add_questions_to_db(job_description=job_description, session=session)
             job_description.status = StatusEnum.QUESTIONS_GENERATED
             job_description.error_message = None
 
@@ -109,17 +99,13 @@ class JobDescriptionService:
 
         return job_description
 
-    async def count_questions_with_responses(
-        self, job_description_id: int, session: AsyncSession
-    ) -> tuple[int, int]:
+    async def count_questions_with_responses(self, job_description_id: int, session: AsyncSession) -> tuple[int, int]:
         """
         Count questions with at least one response for a job description.
 
         Returns (questions_with_responses, total_questions) for progress tracking.
         """
-        total_stmt = select(func.count(col(Question.id))).where(
-            Question.job_description_id == job_description_id
-        )
+        total_stmt = select(func.count(col(Question.id))).where(Question.job_description_id == job_description_id)
         result = await session.exec(total_stmt)
         total_question_count = result.one()
 
@@ -133,9 +119,7 @@ class JobDescriptionService:
 
         return (questions_with_response_count, total_question_count)
 
-    async def _generate_and_add_questions_to_db(
-        self, job_description: JobDescription, session: AsyncSession
-    ) -> None:
+    async def _generate_and_add_questions_to_db(self, job_description: JobDescription, session: AsyncSession) -> None:
         """
         Generate interview questions with Claude and add them to the database.
 

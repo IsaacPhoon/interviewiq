@@ -18,9 +18,7 @@ clerk_auth_guard = ClerkHTTPBearer(config=clerk_config, auto_error=False)
 
 
 async def get_current_user(
-    credentials: Annotated[
-        HTTPAuthorizationCredentials | None, Depends(clerk_auth_guard)
-    ],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(clerk_auth_guard)],
     session: SessionDep,
 ) -> User:
     """

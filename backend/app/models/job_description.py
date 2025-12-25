@@ -52,9 +52,7 @@ class JobDescription(SQLModel, table=True):
     user_id: int = Field(foreign_key='users.id', ondelete='CASCADE')
     user: User = Relationship(back_populates='job_descriptions')
 
-    questions: list[Question] = Relationship(
-        back_populates='job_description', cascade_delete=True
-    )
+    questions: list[Question] = Relationship(back_populates='job_description', cascade_delete=True)
 
 
 class JobDescriptionCreate(BaseModel):
@@ -65,13 +63,9 @@ class JobDescriptionCreate(BaseModel):
     Field lengths are validated against shared constants.
     """
 
-    company_name: str = Field(
-        min_length=COMPANY_NAME_MIN_LENGTH, max_length=COMPANY_NAME_MAX_LENGTH
-    )
+    company_name: str = Field(min_length=COMPANY_NAME_MIN_LENGTH, max_length=COMPANY_NAME_MAX_LENGTH)
     job_title: str = Field(min_length=TITLE_MIN_LENGTH, max_length=TITLE_MAX_LENGTH)
-    description_text: str = Field(
-        min_length=DESCRIPTION_TEXT_MIN_LENGTH, max_length=DESCRIPTION_TEXT_MAX_LENGTH
-    )
+    description_text: str = Field(min_length=DESCRIPTION_TEXT_MIN_LENGTH, max_length=DESCRIPTION_TEXT_MAX_LENGTH)
 
 
 class JobDescriptionResponse(BaseModel):
