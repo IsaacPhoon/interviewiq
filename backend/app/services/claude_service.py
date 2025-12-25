@@ -26,8 +26,6 @@ Generate 5 behavioral interview questions that:
 class ClaudeServiceError(Exception):
     """Raised when there is an error interacting with the Claude API."""
 
-    pass
-
 
 class QuestionsList(BaseModel):
     """Schema for generated interview questions."""

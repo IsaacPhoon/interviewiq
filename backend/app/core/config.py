@@ -27,5 +27,9 @@ class Settings(BaseSettings):
     R2_SECRET_ACCESS_KEY: str
     R2_BUCKET_NAME: str
 
+    AZURE_SPEECH_ENDPOINT: str
+    AZURE_SPEECH_KEY: str
+    AZURE_SPEECH_API_VERSION: str
+
 
 settings = Settings()  # type: ignore[call-arg]

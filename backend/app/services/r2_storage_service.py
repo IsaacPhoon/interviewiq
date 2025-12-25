@@ -11,8 +11,6 @@ from app.core.config import settings
 class R2ServiceError(Exception):
     """Raised when there is an error interacting with Cloudflare R2 through boto3."""
 
-    pass
-
 
 class R2StorageService:
     """Service for interacting with Cloudflare R2 storage."""
