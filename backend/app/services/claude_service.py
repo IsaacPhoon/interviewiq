@@ -3,6 +3,11 @@ from pydantic import BaseModel, Field, ValidationError
 
 from app.core.config import settings
 
+
+class ClaudeServiceError(Exception):
+    """Raised when there is an error interacting with the Claude API."""
+
+
 QUESTION_GENERATION_PROMPT = """
 You are an expert interview coach. Based on the following job description, \
 generate exactly 5 behavioral interview questions that are tailored to this \
@@ -21,10 +26,6 @@ Generate 5 behavioral interview questions that:
 4. Are clear and professionally worded
 5. Cover different aspects of the role
 """
-
-
-class ClaudeServiceError(Exception):
-    """Raised when there is an error interacting with the Claude API."""
 
 
 class QuestionsList(BaseModel):
