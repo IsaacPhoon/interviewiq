@@ -2,6 +2,10 @@ from fastapi import APIRouter, UploadFile, status
 
 from app.core.auth import CurrentUserDep
 from app.core.database import SessionDep
+from app.models.response import ResponseInitialResponse
+from app.services.question_service import question_service
+from app.services.response_processing_service import ResponseProcessingServiceDep
+from app.services.response_service import response_service
 
 router = APIRouter(tags=['Responses'])
 
@@ -9,21 +13,36 @@ router = APIRouter(tags=['Responses'])
 @router.post(
     path='/questions/{question_id}/responses',
     status_code=status.HTTP_201_CREATED,
-    response_model=None,  # Replace with actual response model
+    response_model=ResponseInitialResponse,
 )
 async def sumbit_response(
     question_id: int,
     audio_file: UploadFile,
     current_user: CurrentUserDep,
     session: SessionDep,
+    response_processing_service: ResponseProcessingServiceDep,
 ):
     """
-    Submit an audio response to a question, transcribe it, and get evaluation results.
+    Submit an audio response to a question and enqueue it for processing.
 
-    ADD DOCSTRING DETAILS HERE
+    Validates the question ownership and audio file, uploads the audio to R2 storage,
+    creates a Response record in the database, and enqueues background task for transcription and evaluation.
+    Returns the initial response details including ID, status, creation timestamp, and a confirmation message.
+    Use the polling endpoint to check processing status and retrieve results later.
     """
-    # Implementation goes here
-    pass
+    await question_service.get_user_question(
+        question_id=question_id,
+        user_id=current_user.id,  # type: ignore[arg-type]
+        session=session,
+    )
+
+    response = await response_service.validate_and_upload_audio(
+        question_id=question_id, audio_file=audio_file, session=session
+    )
+
+    response_processing_service.enqueue_response_processing(response.id)  # type: ignore[arg-type]
+
+    return response
 
 
 @router.get(

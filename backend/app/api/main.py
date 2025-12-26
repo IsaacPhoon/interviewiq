@@ -1,11 +1,12 @@
 from fastapi import APIRouter
 
-from app.api.routes import job_descriptions, questions, webhooks
+from app.api.routes import job_descriptions, questions, responses, webhooks
 
 api_router = APIRouter()
 api_router.include_router(job_descriptions.router)
 api_router.include_router(questions.router)
 api_router.include_router(webhooks.router)
+api_router.include_router(responses.router)
 
 
 @api_router.get('/health', tags=['Health'])
