@@ -34,7 +34,7 @@ class Question(SQLModel, table=True):
 
 class QuestionResponse(BaseModel):
     """
-    Response model for an interview question.
+    Response schema for an interview question.
 
     Includes the question details along with the calculated count of user attempts.
     """

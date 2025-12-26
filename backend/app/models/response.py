@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
+from pydantic import BaseModel
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
@@ -37,3 +38,16 @@ class Response(SQLModel, table=True):
 
     question_id: int = Field(foreign_key='questions.id', ondelete='CASCADE', index=True)
     question: Question = Relationship(back_populates='responses')
+
+
+class ResponseInitialResponse(BaseModel):
+    """
+    Response schema for the initial submission of a response.
+
+    Includes the response ID, processing status, creation timestamp, and a confirmation message.
+    """
+
+    id: int
+    status: ResponseProcessingStatus
+    created_at: datetime
+    message: str = 'Response submitted successfully and is being processed in the background.'
