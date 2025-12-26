@@ -116,17 +116,17 @@ class ClaudeService:
 
     def __init__(self):
         """Initialize the ClaudeService instance."""
-        self.client: AsyncAnthropic | None = None
-        self.model = settings.CLAUDE_MODEL
+        self._client: AsyncAnthropic | None = None
+        self._model = settings.CLAUDE_MODEL
 
     def start(self):
         """Start the service by initializing the Claude API client."""
-        self.client = AsyncAnthropic(api_key=settings.CLAUDE_API_KEY)
+        self._client = AsyncAnthropic(api_key=settings.CLAUDE_API_KEY)
 
     async def stop(self):
         """Close the service's Claude API client."""
-        if self.client is not None:
-            await self.client.close()
+        if self._client is not None:
+            await self._client.close()
 
     def _ensure_started(self) -> AsyncAnthropic:
         """
@@ -135,9 +135,9 @@ class ClaudeService:
         Raises:
             ClaudeServiceError: If the service has not been started
         """
-        if self.client is None:
+        if self._client is None:
             raise ClaudeServiceError('ClaudeService has not been started. Call start() before using the service.')
-        return self.client
+        return self._client
 
     @retry(
         stop=stop_any(stop_after_attempt(3), stop_after_delay(30)),
@@ -159,7 +159,7 @@ class ClaudeService:
         client = self._ensure_started()
         try:
             response = await client.beta.messages.parse(
-                model=self.model,
+                model=self._model,
                 max_tokens=2000,
                 betas=['structured-outputs-2025-11-13'],
                 messages=[
@@ -217,7 +217,7 @@ class ClaudeService:
         client = self._ensure_started()
         try:
             response = await client.beta.messages.parse(
-                model=self.model,
+                model=self._model,
                 max_tokens=3000,
                 betas=['structured-outputs-2025-11-13'],
                 messages=[

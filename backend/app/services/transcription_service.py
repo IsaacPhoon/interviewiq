@@ -54,13 +54,13 @@ class TranscriptionService:
 
     def __init__(self):
         """Initialize the TranscriptionService instance."""
-        self.client: httpx.AsyncClient | None = None
+        self._client: httpx.AsyncClient | None = None
 
     def start(self):
         """Start the service by initializing the HTTPX async client."""
         base_url = settings.AZURE_SPEECH_ENDPOINT.rstrip('/')
         transcription_url = f'{base_url}/speechtotext/transcriptions:transcribe'
-        self.client = httpx.AsyncClient(
+        self._client = httpx.AsyncClient(
             http2=True,
             timeout=httpx.Timeout(connect=5.0, read=75.0, write=5.0, pool=10.0),
             limits=httpx.Limits(max_connections=100, max_keepalive_connections=20),
@@ -76,8 +76,8 @@ class TranscriptionService:
 
     async def stop(self):
         """Close the service's HTTPX async client."""
-        if self.client is not None:
-            await self.client.aclose()
+        if self._client is not None:
+            await self._client.aclose()
 
     def _ensure_started(self) -> httpx.AsyncClient:
         """
@@ -86,11 +86,11 @@ class TranscriptionService:
         Raises:
             TranscriptionServiceError: If the service has not been started
         """
-        if self.client is None:
+        if self._client is None:
             raise TranscriptionServiceError(
                 'TranscriptionService has not been started. Call start() before using the service.'
             )
-        return self.client
+        return self._client
 
     @retry(
         stop=stop_any(stop_after_attempt(3), stop_after_delay(120)),

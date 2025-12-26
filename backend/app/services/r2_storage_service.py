@@ -26,12 +26,12 @@ class R2StorageService:
 
     def __init__(self):
         """Initialize the R2StorageService instance."""
-        self.bucket_name = settings.R2_BUCKET_NAME
-        self.r2_client: S3Client | None = None
+        self._bucket_name = settings.R2_BUCKET_NAME
+        self._r2_client: S3Client | None = None
 
     def start(self):
         """Start the service by initializing the boto3 R2 client."""
-        self.r2_client = boto3.client(
+        self._r2_client = boto3.client(
             's3',
             endpoint_url=settings.R2_ENDPOINT_URL,
             aws_access_key_id=settings.R2_ACCESS_KEY_ID,
@@ -41,8 +41,8 @@ class R2StorageService:
 
     def stop(self):
         """Close the service's boto3 R2 client."""
-        if self.r2_client is not None:
-            self.r2_client.close()
+        if self._r2_client is not None:
+            self._r2_client.close()
 
     def _ensure_started(self) -> S3Client:
         """
@@ -51,9 +51,9 @@ class R2StorageService:
         Raises:
             R2ServiceError: If the service has not been started
         """
-        if self.r2_client is None:
+        if self._r2_client is None:
             raise R2ServiceError('R2StorageService has not been started. Call start() before using the service.')
-        return self.r2_client
+        return self._r2_client
 
     @retry(
         stop=stop_any(stop_after_attempt(5), stop_after_delay(15)),
@@ -77,7 +77,7 @@ class R2StorageService:
             await run_in_threadpool(
                 client.upload_fileobj,
                 Fileobj=audio_file,
-                Bucket=self.bucket_name,
+                Bucket=self._bucket_name,
                 Key=audio_path,
                 ExtraArgs={'ContentType': 'audio/webm'},
             )
@@ -106,7 +106,7 @@ class R2StorageService:
             url = await run_in_threadpool(
                 client.generate_presigned_url,
                 'get_object',
-                Params={'Bucket': self.bucket_name, 'Key': audio_path},
+                Params={'Bucket': self._bucket_name, 'Key': audio_path},
                 ExpiresIn=3600,
             )
             return url

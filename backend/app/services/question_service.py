@@ -8,7 +8,7 @@ from app.models.response import Response
 
 
 class QuestionService:
-    """Service for managing questions."""
+    """Service for managing interview questions."""
 
     async def get_user_question(
         self,
