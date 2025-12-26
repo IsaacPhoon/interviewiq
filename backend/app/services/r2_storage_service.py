@@ -83,7 +83,7 @@ class R2StorageService:
             )
             return audio_path
         except ClientError as e:
-            raise R2ServiceError(f'Failed to upload audio to R2 storage: {e}') from e
+            raise R2ServiceError(f'Failed to upload audio to R2 storage: {str(e)}') from e
 
     @retry(
         stop=stop_any(stop_after_attempt(3), stop_after_delay(10)),
@@ -111,7 +111,7 @@ class R2StorageService:
             )
             return url
         except ClientError as e:
-            raise R2ServiceError(f'Failed to generate presigned URL: {e}') from e
+            raise R2ServiceError(f'Failed to generate presigned URL: {str(e)}') from e
 
 
 r2_storage_service = R2StorageService()
