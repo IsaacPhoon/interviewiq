@@ -4,6 +4,7 @@ from typing import BinaryIO
 
 import boto3
 from botocore.exceptions import ClientError
+from mypy_boto3_s3 import S3Client
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -26,7 +27,7 @@ class R2StorageService:
     def __init__(self):
         """Initialize the R2StorageService instance."""
         self.bucket_name = settings.R2_BUCKET_NAME
-        self.r2_client = None
+        self.r2_client: S3Client | None = None
 
     def start(self):
         """Start the service by initializing the boto3 R2 client."""
@@ -43,7 +44,7 @@ class R2StorageService:
         if self.r2_client is not None:
             self.r2_client.close()
 
-    def _ensure_started(self):
+    def _ensure_started(self) -> S3Client:
         """
         Ensure the service has been started and return the non-None client.
 
