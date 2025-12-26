@@ -120,7 +120,7 @@ class ClaudeService:
         self.model = settings.CLAUDE_MODEL
 
     @retry(
-        stop=stop_any(stop_after_attempt(3), stop_after_delay(20)),
+        stop=stop_any(stop_after_attempt(3), stop_after_delay(30)),
         wait=wait_exponential_jitter(initial=1, max=10, jitter=1),
         retry=retry_if_exception_type(ClaudeServiceError),
         reraise=True,
@@ -174,7 +174,7 @@ class ClaudeService:
         return questions_list.questions
 
     @retry(
-        stop=stop_any(stop_after_attempt(3), stop_after_delay(20)),
+        stop=stop_any(stop_after_attempt(3), stop_after_delay(30)),
         wait=wait_exponential_jitter(initial=1, max=10, jitter=1),
         retry=retry_if_exception_type(ClaudeServiceError),
         reraise=True,
