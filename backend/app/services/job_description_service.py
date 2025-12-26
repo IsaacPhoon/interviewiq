@@ -2,7 +2,8 @@ from fastapi import HTTPException, status
 from sqlmodel import col, distinct, func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.models.job_description import JobDescription, StatusEnum
+from app.models.enums import JobDescriptionStatus
+from app.models.job_description import JobDescription
 from app.models.question import Question
 from app.models.response import Response
 from app.services.claude_service import claude_service
@@ -55,10 +56,10 @@ class JobDescriptionService:
 
         try:
             await self._generate_and_add_questions_to_db(job_description=job_description, session=session)
-            job_description.status = StatusEnum.QUESTIONS_GENERATED
+            job_description.status = JobDescriptionStatus.QUESTIONS_GENERATED
 
         except Exception as e:
-            job_description.status = StatusEnum.ERROR
+            job_description.status = JobDescriptionStatus.ERROR
             job_description.error_message = str(e)
 
         session.add(job_description)
@@ -86,11 +87,11 @@ class JobDescriptionService:
 
         try:
             await self._generate_and_add_questions_to_db(job_description=job_description, session=session)
-            job_description.status = StatusEnum.QUESTIONS_GENERATED
+            job_description.status = JobDescriptionStatus.QUESTIONS_GENERATED
             job_description.error_message = None
 
         except Exception as e:
-            job_description.status = StatusEnum.ERROR
+            job_description.status = JobDescriptionStatus.ERROR
             job_description.error_message = str(e)
 
         session.add(job_description)

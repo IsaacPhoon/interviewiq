@@ -1,5 +1,4 @@
 from datetime import UTC, datetime
-from enum import Enum
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
@@ -7,6 +6,7 @@ from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.constants import job_description_constants
+from app.models.enums import JobDescriptionStatus
 
 if TYPE_CHECKING:
     from app.models import Question, User
@@ -18,14 +18,6 @@ TITLE_MIN_LENGTH = job_description_constants.TITLE_MIN_LENGTH
 TITLE_MAX_LENGTH = job_description_constants.TITLE_MAX_LENGTH
 DESCRIPTION_TEXT_MIN_LENGTH = job_description_constants.DESCRIPTION_TEXT_MIN_LENGTH
 DESCRIPTION_TEXT_MAX_LENGTH = job_description_constants.DESCRIPTION_TEXT_MAX_LENGTH
-
-
-class StatusEnum(str, Enum):
-    """Enumeration of possible job description statuses."""
-
-    PENDING = 'pending'
-    QUESTIONS_GENERATED = 'questions_generated'
-    ERROR = 'error'
 
 
 class JobDescription(SQLModel, table=True):
@@ -42,14 +34,14 @@ class JobDescription(SQLModel, table=True):
     company_name: str
     job_title: str
     description_text: str
-    status: StatusEnum = StatusEnum.PENDING
+    status: JobDescriptionStatus = JobDescriptionStatus.PENDING
     error_message: str | None = None
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
 
-    user_id: int = Field(foreign_key='users.id', ondelete='CASCADE')
+    user_id: int = Field(foreign_key='users.id', ondelete='CASCADE', index=True)
     user: User = Relationship(back_populates='job_descriptions')
 
     questions: list[Question] = Relationship(back_populates='job_description', cascade_delete=True)
@@ -80,7 +72,7 @@ class JobDescriptionResponse(BaseModel):
     company_name: str
     job_title: str
     description_text: str
-    status: StatusEnum
+    status: JobDescriptionStatus
     created_at: datetime
     questions_with_responses: int
     total_questions: int

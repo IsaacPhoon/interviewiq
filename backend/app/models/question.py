@@ -26,7 +26,7 @@ class Question(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
 
-    job_description_id: int = Field(foreign_key='job_descriptions.id', ondelete='CASCADE')
+    job_description_id: int = Field(foreign_key='job_descriptions.id', ondelete='CASCADE', index=True)
     job_description: JobDescription = Relationship(back_populates='questions')
 
     responses: list[Response] = Relationship(back_populates='question', cascade_delete=True)
