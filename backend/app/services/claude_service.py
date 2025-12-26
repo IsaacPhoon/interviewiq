@@ -115,9 +115,29 @@ class ClaudeService:
     """
 
     def __init__(self):
-        """Initialize the ClaudeService with async API client and model settings."""
-        self.client = AsyncAnthropic(api_key=settings.CLAUDE_API_KEY)
+        """Initialize the ClaudeService instance."""
+        self.client: AsyncAnthropic | None = None
         self.model = settings.CLAUDE_MODEL
+
+    def start(self):
+        """Start the service by initializing the Claude API client."""
+        self.client = AsyncAnthropic(api_key=settings.CLAUDE_API_KEY)
+
+    async def stop(self):
+        """Close the service's Claude API client."""
+        if self.client is not None:
+            await self.client.close()
+
+    def _ensure_started(self) -> AsyncAnthropic:
+        """
+        Ensure the service has been started and return the non-None client.
+
+        Raises:
+            ClaudeServiceError: If the service has not been started
+        """
+        if self.client is None:
+            raise ClaudeServiceError('ClaudeService has not been started. Call start() before using the service.')
+        return self.client
 
     @retry(
         stop=stop_any(stop_after_attempt(3), stop_after_delay(30)),
@@ -136,8 +156,9 @@ class ClaudeService:
         Raises:
             ClaudeServiceError: If API call fails or returns invalid output
         """
+        client = self._ensure_started()
         try:
-            response = await self.client.beta.messages.parse(
+            response = await client.beta.messages.parse(
                 model=self.model,
                 max_tokens=2000,
                 betas=['structured-outputs-2025-11-13'],
@@ -193,8 +214,9 @@ class ClaudeService:
         Raises:
             ClaudeServiceError: If API call fails or returns invalid output
         """
+        client = self._ensure_started()
         try:
-            response = await self.client.beta.messages.parse(
+            response = await client.beta.messages.parse(
                 model=self.model,
                 max_tokens=3000,
                 betas=['structured-outputs-2025-11-13'],

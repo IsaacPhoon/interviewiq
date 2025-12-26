@@ -53,7 +53,11 @@ class TranscriptionService:
     """Service for handling speech-to-text transcription operations."""
 
     def __init__(self):
-        """Initialize the TranscriptionService with HTTPX async client."""
+        """Initialize the TranscriptionService instance."""
+        self.client: httpx.AsyncClient | None = None
+
+    def start(self):
+        """Start the service by initializing the HTTPX async client."""
         base_url = settings.AZURE_SPEECH_ENDPOINT.rstrip('/')
         transcription_url = f'{base_url}/speechtotext/transcriptions:transcribe'
         self.client = httpx.AsyncClient(
@@ -70,6 +74,23 @@ class TranscriptionService:
             },
         )
 
+    async def stop(self):
+        """Close the service's HTTPX async client."""
+        if self.client is not None:
+            await self.client.aclose()
+
+    def _ensure_started(self) -> httpx.AsyncClient:
+        """
+        Ensure the service has been started and return the non-None client.
+
+        Raises:
+            TranscriptionServiceError: If the service has not been started
+        """
+        if self.client is None:
+            raise TranscriptionServiceError(
+                'TranscriptionService has not been started. Call start() before using the service.'
+            )
+        return self.client
 
     @retry(
         stop=stop_any(stop_after_attempt(3), stop_after_delay(120)),
@@ -86,10 +107,11 @@ class TranscriptionService:
         Raises:
             TranscriptionServiceError: If transcription fails or response is invalid
         """
+        client = self._ensure_started()
         try:
             definition = TranscriptionDefinition(audioUrl=audio_url)  # type: ignore[arg-type]
 
-            response = await self.client.post(
+            response = await client.post(
                 url='',
                 files={
                     'definition': (
@@ -117,3 +139,6 @@ class TranscriptionService:
             raise TranscriptionServiceError(
                 f'Unexpected error during transcription. {type(e).__name__}: {str(e)}'
             ) from e
+
+
+transcription_service = TranscriptionService()

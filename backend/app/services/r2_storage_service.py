@@ -24,8 +24,12 @@ class R2StorageService:
     """Service for interacting with Cloudflare R2 storage."""
 
     def __init__(self):
-        """Initialize the R2StorageService with boto3 client and bucket settings."""
+        """Initialize the R2StorageService instance."""
         self.bucket_name = settings.R2_BUCKET_NAME
+        self.r2_client = None
+
+    def start(self):
+        """Start the service by initializing the boto3 R2 client."""
         self.r2_client = boto3.client(
             's3',
             endpoint_url=settings.R2_ENDPOINT_URL,
@@ -33,6 +37,22 @@ class R2StorageService:
             aws_secret_access_key=settings.R2_SECRET_ACCESS_KEY,
             region_name='auto',
         )
+
+    def stop(self):
+        """Close the service's boto3 R2 client."""
+        if self.r2_client is not None:
+            self.r2_client.close()
+
+    def _ensure_started(self):
+        """
+        Ensure the service has been started and return the non-None client.
+
+        Raises:
+            R2ServiceError: If the service has not been started
+        """
+        if self.r2_client is None:
+            raise R2ServiceError('R2StorageService has not been started. Call start() before using the service.')
+        return self.r2_client
 
     @retry(
         stop=stop_any(stop_after_attempt(5), stop_after_delay(15)),
@@ -50,10 +70,11 @@ class R2StorageService:
         Raises:
             R2ServiceError: If the upload fails
         """
+        client = self._ensure_started()
         audio_path = f'audio/{uuid.uuid7()}.webm'
         try:
             await asyncio.to_thread(
-                self.r2_client.upload_fileobj,
+                client.upload_fileobj,
                 Fileobj=audio_file,
                 Bucket=self.bucket_name,
                 Key=audio_path,
@@ -62,7 +83,6 @@ class R2StorageService:
             return audio_path
         except ClientError as e:
             raise R2ServiceError(f'Failed to upload audio to R2 storage: {e}') from e
-
 
     @retry(
         stop=stop_any(stop_after_attempt(3), stop_after_delay(10)),
@@ -80,9 +100,10 @@ class R2StorageService:
         Raises:
             R2ServiceError: If URL generation fails
         """
+        client = self._ensure_started()
         try:
             url = await asyncio.to_thread(
-                self.r2_client.generate_presigned_url,
+                client.generate_presigned_url,
                 'get_object',
                 Params={'Bucket': self.bucket_name, 'Key': audio_path},
                 ExpiresIn=3600,
