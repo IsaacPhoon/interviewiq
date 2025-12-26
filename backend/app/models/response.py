@@ -34,10 +34,25 @@ class Response(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), nullable=True),
     )
     transcript: str | None = None
-    evaluation: Evaluation | None = Field(sa_column=Column(JSONB), default=None)
+    evaluation: dict | None = Field(sa_column=Column(JSONB), default=None)
 
     question_id: int = Field(foreign_key='questions.id', ondelete='CASCADE', index=True)
     question: Question = Relationship(back_populates='responses')
+
+    @property
+    def evaluation_obj(self) -> Evaluation | None:
+        """Get the evaluation attribute as an Evaluation Pydantic object."""
+        if self.evaluation is not None:
+            return Evaluation.model_validate(self.evaluation)
+        return None
+
+    @evaluation_obj.setter
+    def evaluation_obj(self, value: Evaluation | None):
+        """Set the evaluation attribute from an Evaluation Pydantic object."""
+        if value is not None:
+            self.evaluation = value.model_dump()
+        else:
+            self.evaluation = None
 
 
 class ResponseInitialResponse(BaseModel):
