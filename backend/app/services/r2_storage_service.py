@@ -1,10 +1,10 @@
-import asyncio
 import uuid
 from typing import BinaryIO
 
 import boto3
 from botocore.exceptions import ClientError
 from mypy_boto3_s3 import S3Client
+from starlette.concurrency import run_in_threadpool
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -74,7 +74,7 @@ class R2StorageService:
         client = self._ensure_started()
         audio_path = f'audio/{uuid.uuid7()}.webm'
         try:
-            await asyncio.to_thread(
+            await run_in_threadpool(
                 client.upload_fileobj,
                 Fileobj=audio_file,
                 Bucket=self.bucket_name,
@@ -103,7 +103,7 @@ class R2StorageService:
         """
         client = self._ensure_started()
         try:
-            url = await asyncio.to_thread(
+            url = await run_in_threadpool(
                 client.generate_presigned_url,
                 'get_object',
                 Params={'Bucket': self.bucket_name, 'Key': audio_path},
