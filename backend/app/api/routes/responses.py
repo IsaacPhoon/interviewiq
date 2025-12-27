@@ -2,8 +2,9 @@ from fastapi import APIRouter, UploadFile, status
 
 from app.core.auth import CurrentUserDep
 from app.core.database import SessionDep
-from app.models.response import ResponseInitialResponse, ResponsePollingResponse
+from app.models.response import ResponseInitialResponse, ResponseListItem, ResponsePollingResponse
 from app.services.question_service import question_service
+from app.services.r2_storage_service import r2_storage_service
 from app.services.response_processing_service import ResponseProcessingServiceDep
 from app.services.response_service import response_service
 
@@ -61,7 +62,7 @@ async def get_response(
     """
     Retrieve a response's processing status and results (if available).
 
-    Polling endpoint to check the status of a response. 
+    Polling endpoint to check the status of a response.
     Returns progressive disclosure of fields as processing advances and/or completes.
 
     Returns 404 if response not found or not owned by user.
@@ -79,7 +80,7 @@ async def get_response(
 
 @router.get(
     path='/questions/{question_id}/responses',
-    response_model=list,  # Replace with actual response model
+    response_model=list[ResponseListItem],
 )
 async def get_responses(
     question_id: int,
@@ -89,10 +90,25 @@ async def get_responses(
     """
     Retrieve all responses for a specific question.
 
-    ADD DOCSTRING DETAILS HERE
+    Returns a list of fully processed responses associated with the given question ID.
+
+    Returns 404 if question not found or not owned by user.
     """
-    # Implementation goes here
-    pass
+    responses = await response_service.get_question_responses(
+        question_id=question_id,
+        user_id=current_user.id,  # type: ignore[arg-type]
+        session=session,
+    )
+
+    response_list = []
+    for response in responses:
+        audio_url = await r2_storage_service.get_audio_url(response.audio_path)
+        response_dict = response.model_dump()
+        response_dict['audio_url'] = audio_url
+        response_item = ResponseListItem.model_validate(response_dict)
+        response_list.append(response_item)
+
+    return response_list
 
 
 @router.delete(

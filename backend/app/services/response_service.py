@@ -47,6 +47,32 @@ class ResponseService:
 
         return response
 
+    async def get_question_responses(
+        self,
+        question_id: int,
+        user_id: int,
+        session: AsyncSession,
+    ) -> list[Response]:
+        """
+        Get all responses for a question with ownership verification.
+
+        Raises:
+            HTTPException: 404 if question not found or user doesn't own it
+        """
+        question_stmt = (
+            select(Question).join(JobDescription).where(Question.id == question_id, JobDescription.user_id == user_id)
+        )
+        question_result = await session.exec(question_stmt)
+        if question_result.one_or_none() is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Question not found',
+            )
+
+        responses_stmt = select(Response).where(Response.question_id == question_id)
+        responses_result = await session.exec(responses_stmt)
+        return list(responses_result.all())
+
     async def validate_and_upload_audio(
         self, question_id: int, audio_file: UploadFile, session: AsyncSession
     ) -> Response:

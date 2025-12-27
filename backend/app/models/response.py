@@ -85,3 +85,18 @@ class ResponsePollingResponse(BaseModel):
     transcript: str | None = None
 
     evaluation: Evaluation | None = None
+
+
+class ResponseListItem(BaseModel):
+    """
+    Response schema for listing responses associated with a question.
+
+    Includes full details of each response.
+    Only meant to represent fully processed responses.
+    """
+
+    id: int
+    created_at: datetime
+    audio_url: str
+    transcript: str
+    evaluation: Evaluation
