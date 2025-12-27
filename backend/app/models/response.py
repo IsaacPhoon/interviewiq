@@ -72,7 +72,7 @@ class ResponsePollingResponse(BaseModel):
     """
     Response schema for polling the status of a response processing.
 
-    ALways includes the response ID, processing status, creation timestamp, and a message.
+    ALways includes the response ID, processing status, creation timestamp, a message, and a presigned audio URL.
     Includes progressive disclosure of additional fields as processing advances and/or completes.
     """
 
@@ -80,6 +80,7 @@ class ResponsePollingResponse(BaseModel):
     status: ResponseProcessingStatus
     created_at: datetime
     message: str
+    audio_url: str
 
     transcript: str | None = None
 
