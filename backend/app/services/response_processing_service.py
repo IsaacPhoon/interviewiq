@@ -1,8 +1,8 @@
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import BackgroundTasks, Depends
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import QueryableAttribute, selectinload
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -52,7 +52,11 @@ class ResponseProcessingService:
                 result = await session.exec(
                     select(Response)
                     .where(Response.id == response_id)
-                    .options(selectinload(Response.question).selectinload(Question.job_description))  # type: ignore
+                    .options(
+                        selectinload(cast(QueryableAttribute, Response.question)).selectinload(
+                            cast(QueryableAttribute, Question.job_description)
+                        )
+                    )
                 )
                 response = result.one_or_none()
                 if response is None:
