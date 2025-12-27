@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
 from app.models.enums import ResponseProcessingStatus
-from app.services.claude_service import Evaluation, Feedback, Scores
+from app.services.claude_service import Evaluation
 
 if TYPE_CHECKING:
     from app.models import Question
