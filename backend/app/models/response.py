@@ -84,29 +84,4 @@ class ResponsePollingResponse(BaseModel):
 
     transcript: str | None = None
 
-    scores: Scores | None = None
-    feedback: Feedback | None = None
-    overall_comment: str | None = None
-
-    @property
-    def evaluation(self) -> Evaluation | None:
-        """Get the evaluation fields as an Evaluation Pydantic object."""
-        if self.scores is not None and self.feedback is not None and self.overall_comment is not None:
-            return Evaluation(
-                scores=self.scores,
-                feedback=self.feedback,
-                overall_comment=self.overall_comment,
-            )
-        return None
-
-    @evaluation.setter
-    def evaluation(self, value: Evaluation | None) -> None:
-        """Set the evaluation fields from an Evaluation Pydantic object."""
-        if value is not None:
-            self.scores = value.scores
-            self.feedback = value.feedback
-            self.overall_comment = value.overall_comment
-        else:
-            self.scores = None
-            self.feedback = None
-            self.overall_comment = None
+    evaluation: Evaluation | None = None
