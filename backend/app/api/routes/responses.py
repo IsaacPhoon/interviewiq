@@ -123,7 +123,16 @@ async def delete_response(
     """
     Delete a specific response by its ID.
 
-    ADD DOCSTRING DETAILS HERE
+    Permanently deletes the response record and associated audio from storage.
+
+    Returns 404 if response not found or not owned by user.
     """
-    # Implementation goes here
-    pass
+    response = await response_service.get_user_response(
+        response_id=response_id,
+        user_id=current_user.id,  # type: ignore[arg-type]
+        session=session,
+    )
+
+    await response_service.delete_response(response, session)
+
+    return None

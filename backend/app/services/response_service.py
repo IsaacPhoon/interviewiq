@@ -198,5 +198,23 @@ class ResponseService:
 
         return polling_response
 
+    async def delete_response(self, response: Response, session: AsyncSession) -> None:
+        """
+        Delete a response and its associated audio from storage.
+
+        Permanently deletes the response record from the database and
+        removes the associated audio file from R2 storage.
+        """
+        try:
+            await r2_storage_service.delete_audio(response.audio_path)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail='An unexpected error occurred while deleting the audio file. Please contact support.',
+            ) from e
+
+        await session.delete(response)
+        await session.commit()
+
 
 response_service = ResponseService()

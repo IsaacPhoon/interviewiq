@@ -113,5 +113,30 @@ class R2StorageService:
         except ClientError as e:
             raise R2ServiceError(f'Failed to generate presigned URL: {str(e)}') from e
 
+    @retry(
+        stop=stop_any(stop_after_attempt(5), stop_after_delay(15)),
+        wait=wait_exponential_jitter(initial=1, max=10, jitter=1),
+        retry=retry_if_exception_type(R2ServiceError),
+        reraise=True,
+    )
+    async def delete_audio(self, audio_path: str) -> None:
+        """
+        Delete an audio file from R2 storage.
+
+        Accepts the path of the audio file in R2 and deletes it.
+
+        Raises:
+            R2ServiceError: If deletion fails
+        """
+        client = self._ensure_started()
+        try:
+            await run_in_threadpool(
+                client.delete_object,
+                Bucket=self._bucket_name,
+                Key=audio_path,
+            )
+        except ClientError as e:
+            raise R2ServiceError(f'Failed to delete audio from R2 storage: {str(e)}') from e
+
 
 r2_storage_service = R2StorageService()
