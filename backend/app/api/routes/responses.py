@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, status
 
 from app.core.auth import CurrentUserDep
 from app.core.database import SessionDep
-from app.models.response import ResponseInitialResponse
+from app.models.response import ResponseInitialResponse, ResponsePollingResponse
 from app.services.question_service import question_service
 from app.services.response_processing_service import ResponseProcessingServiceDep
 from app.services.response_service import response_service
@@ -29,6 +29,9 @@ async def sumbit_response(
     creates a Response record in the database, and enqueues background task for transcription and evaluation.
     Returns the initial response details including ID, status, creation timestamp, and a confirmation message.
     Use the polling endpoint to check processing status and retrieve results later.
+
+    Returns 404 if question not found or not owned by user.
+    Returns 400 if audio file is an invalid format or exceeds size limit.
     """
     await question_service.get_user_question(
         question_id=question_id,
@@ -46,6 +49,35 @@ async def sumbit_response(
 
 
 @router.get(
+    path='/responses/{response_id}/status',
+    response_model=ResponsePollingResponse,
+    response_model_exclude_unset=True,
+)
+async def get_response(
+    response_id: int,
+    current_user: CurrentUserDep,
+    session: SessionDep,
+):
+    """
+    Retrieve a response's processing status and results (if available).
+
+    Polling endpoint to check the status of a response. 
+    Returns progressive disclosure of fields as processing advances and/or completes.
+
+    Returns 404 if response not found or not owned by user.
+    """
+    response = await response_service.get_user_response(
+        response_id=response_id,
+        user_id=current_user.id,  # type: ignore[arg-type]
+        session=session,
+    )
+
+    polling_response = await response_service.get_polling_response(response)
+
+    return polling_response
+
+
+@router.get(
     path='/questions/{question_id}/responses',
     response_model=list,  # Replace with actual response model
 )
@@ -56,42 +88,6 @@ async def get_responses(
 ):
     """
     Retrieve all responses for a specific question.
-
-    ADD DOCSTRING DETAILS HERE
-    """
-    # Implementation goes here
-    pass
-
-
-@router.get(
-    path='/responses/{response_id}',
-    response_model=None,  # Replace with actual response model
-)
-async def get_response(
-    response_id: int,
-    current_user: CurrentUserDep,
-    session: SessionDep,
-):
-    """
-    Retrieve a specific response by its ID.
-
-    ADD DOCSTRING DETAILS HERE
-    """
-    # Implementation goes here
-    pass
-
-
-@router.get(
-    path='/responses/{response_id}/audio',
-    response_model=None,  # Replace with actual response model
-)
-async def get_response_audio(
-    response_id: int,
-    current_user: CurrentUserDep,
-    session: SessionDep,
-):
-    """
-    Retrieve the audio file URL for a specific response.
 
     ADD DOCSTRING DETAILS HERE
     """
