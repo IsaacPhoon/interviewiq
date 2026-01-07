@@ -62,7 +62,13 @@ async def verify_svix_webhook_ip(request: Request) -> None:
     Raises HTTPException 403 if the client IP is not in the allowed list.
     Returns the client IP if allowed.
     """
-    client_ip = request.client.host if request.client else None
+    # Try to get the real client IP from X-Forwarded-For header (for Azure/proxies)
+    x_forwarded_for = request.headers.get("x-forwarded-for")
+    if x_forwarded_for:
+        # Take the first (original client) from X-Forwarded-For
+        client_ip = x_forwarded_for.split(",")[0].strip()
+    else:
+        client_ip = request.client.host if request.client else None
 
     if not client_ip or not _is_svix_webhook_ip(client_ip):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Request not from allowed IP')
