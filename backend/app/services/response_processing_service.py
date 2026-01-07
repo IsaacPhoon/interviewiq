@@ -10,7 +10,7 @@ from app.core.database import engine
 from app.models.enums import ResponseProcessingStatus
 from app.models.question import Question
 from app.models.response import Response
-from app.services.claude_service import ClaudeServiceError, claude_service
+from app.services.openai_service import OpenAIServiceError, openai_service
 from app.services.r2_storage_service import R2ServiceError, r2_storage_service
 from app.services.transcription_service import TranscriptionServiceError, transcription_service
 
@@ -86,7 +86,7 @@ class ResponseProcessingService:
 
                 try:
                     await self._evaluate_response(session=session, response=response)
-                except ClaudeServiceError as e:
+                except OpenAIServiceError as e:
                     await self._mark_as_failed(
                         session=session, response=response, message=f'Evaluation failed: {str(e)}'
                     )
@@ -125,9 +125,9 @@ class ResponseProcessingService:
 
     async def _evaluate_response(self, session: AsyncSession, response: Response) -> None:
         """
-        Evaluate the transcribed response using the Claude service.
+        Evaluate the transcribed response using the OpenAI service.
 
-        Calls the Claude service to evaluate the transcript and
+        Calls the OpenAI service to evaluate the transcript and
         updates the response database record with the evaluation results and status.
         Lets exceptions propagate to the caller for handling.
         """
@@ -142,7 +142,7 @@ class ResponseProcessingService:
         question = response.question
         job_description = question.job_description
 
-        evaluation = await claude_service.evaluate_response(
+        evaluation = await openai_service.evaluate_response(
             job_description_text=job_description.description_text,
             company_name=job_description.company_name,
             job_title=job_description.job_title,

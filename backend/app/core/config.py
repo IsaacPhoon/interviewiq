@@ -19,8 +19,9 @@ class Settings(BaseSettings):
     CLERK_JWKS_URL: str
     CLERK_WEBHOOK_SECRET: str
 
-    CLAUDE_API_KEY: str
-    CLAUDE_MODEL: str
+    AZURE_OPENAI_BASE_URL: str
+    AZURE_OPENAI_API_KEY: str
+    AZURE_OPENAI_MODEL: str
 
     R2_ENDPOINT_URL: str
     R2_ACCESS_KEY_ID: str

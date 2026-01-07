@@ -6,7 +6,7 @@ from app.models.enums import JobDescriptionStatus
 from app.models.job_description import JobDescription
 from app.models.question import Question
 from app.models.response import Response
-from app.services.claude_service import claude_service
+from app.services.openai_service import openai_service
 
 
 class JobDescriptionService:
@@ -46,7 +46,7 @@ class JobDescriptionService:
         Create a job description entry and generate interview questions.
 
         Persists the job description to the database, then generates 5 behavioral
-        interview questions using Claude AI. Updates the status to QUESTIONS_GENERATED
+        interview questions using OpenAI. Updates the status to QUESTIONS_GENERATED
         on success or ERROR on failure. Exceptions are caught and stored in the
         error_message field rather than propagated.
         """
@@ -73,7 +73,7 @@ class JobDescriptionService:
         Regenerate interview questions for a job description.
 
         Deletes all existing questions for the job description and generates
-        a fresh set of 5 questions using Claude AI. Updates the status to
+        a fresh set of 5 questions using OpenAI. Updates the status to
         QUESTIONS_GENERATED on success or ERROR on failure. Clears any previous
         error messages on successful regeneration.
         """
@@ -122,12 +122,12 @@ class JobDescriptionService:
 
     async def _generate_and_add_questions_to_db(self, job_description: JobDescription, session: AsyncSession) -> None:
         """
-        Generate interview questions with Claude and add them to the database.
+        Generate interview questions with OpenAI and add them to the database.
 
-        Internal method that calls Claude API service to generate questions and
+        Internal method that calls OpenAI API service to generate questions and
         persists them to the database. Does not commit the session.
         """
-        questions_list = await claude_service.generate_question(
+        questions_list = await openai_service.generate_question(
             job_description_text=job_description.description_text,
             company_name=job_description.company_name,
             job_title=job_description.job_title,

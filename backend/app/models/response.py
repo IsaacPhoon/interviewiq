@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Column, DateTime, Field, Relationship, SQLModel
 
 from app.models.enums import ResponseProcessingStatus
-from app.services.claude_service import Evaluation
+from app.services.openai_service import InterviewEvaluation
 
 if TYPE_CHECKING:
     from app.models import Question
@@ -40,14 +40,14 @@ class Response(SQLModel, table=True):
     question: Question = Relationship(back_populates='responses')
 
     @property
-    def evaluation_obj(self) -> Evaluation | None:
+    def evaluation_obj(self) -> InterviewEvaluation | None:
         """Get the evaluation attribute as an Evaluation Pydantic object."""
         if self.evaluation is not None:
-            return Evaluation.model_validate(self.evaluation)
+            return InterviewEvaluation.model_validate(self.evaluation)
         return None
 
     @evaluation_obj.setter
-    def evaluation_obj(self, value: Evaluation | None) -> None:
+    def evaluation_obj(self, value: InterviewEvaluation | None) -> None:
         """Set the evaluation attribute from an Evaluation Pydantic object."""
         if value is not None:
             self.evaluation = value.model_dump()
@@ -84,7 +84,7 @@ class ResponsePollingResponse(BaseModel):
 
     transcript: str | None = None
 
-    evaluation: Evaluation | None = None
+    evaluation: InterviewEvaluation | None = None
 
 
 class ResponseListItem(BaseModel):
@@ -99,4 +99,4 @@ class ResponseListItem(BaseModel):
     created_at: datetime
     audio_url: str
     transcript: str
-    evaluation: Evaluation
+    evaluation: InterviewEvaluation

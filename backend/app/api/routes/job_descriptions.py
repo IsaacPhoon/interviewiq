@@ -27,7 +27,7 @@ async def create_job_description(
     Create a new job description and generate interview questions.
 
     Creates a job description entry and asynchronously generates 5 behavioral
-    interview questions tailored to the role using Claude API. Returns the created
+    interview questions tailored to the role using OpenAI API. Returns the created
     job description with status and question count.
     """
     db_job_description = JobDescription.model_validate(job_description, update={'user_id': current_user.id})
@@ -51,7 +51,7 @@ async def regenerate_questions(
     Regenerate interview questions for an existing job description.
 
     Deletes existing questions and generates a new set of 5 behavioral
-    interview questions using Claude API. Useful when an error occurs
+    interview questions using OpenAI API. Useful when an error occurs
     during initial generation.
 
     Returns 404 if not found or not owned by user.
