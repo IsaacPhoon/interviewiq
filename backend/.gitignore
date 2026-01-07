@@ -24,3 +24,6 @@ htmlcov/
 
 # Linting / Formatting
 .ruff_cache/
+
+# Azure Deployment
+azure-env-vars.txt
